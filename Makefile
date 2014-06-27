@@ -2,13 +2,13 @@
 CC=g++
 
 # flags de compilación
-CFLAGS=-g -Wall
+CFLAGS=-g -c -Wall
 
 # flags de linkeo
 LDFLAGS=
 
 # Agregar acá los archivos .cpp a compilar
-SOURCES=test.cpp Driver.cpp aed2/ConjAcotado.cpp wolfie/Wolfie.cpp
+SOURCES=test.cpp aed2/ConjAcotado.cpp wolfie/Wolfie.cpp Driver.cpp
 
 # Objetos que serán generados (no tocar)
 OBJECTS=$(SOURCES:.cpp=.o)
