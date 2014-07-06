@@ -10,7 +10,8 @@ class DiccionarioClientes
 		DiccionarioClientes(aed2::Nat cardinalClientes);
 		~DiccionarioClientes();
 
-		Definir(const aed2::Nat clave, const T& significado);
+		// @pre no se pueden definir más claves que el cardinalClientes inicial
+		void Definir(const aed2::Nat clave, const T& significado);
 		aed2::Nat capacidad();
 	private:
 		aed2::Nat *_clientes;
@@ -33,6 +34,7 @@ template <typename T>
 DiccionarioClientes<T>::~DiccionarioClientes() 
 {
 	delete _clientes;
+	delete _significados;
 }
 
 template <typename T>
@@ -44,15 +46,25 @@ aed2::Nat DiccionarioClientes<T>::capacidad()
 template <typename T>
 void DiccionarioClientes<T>::Definir(const aed2::Nat clave, const T& significado)
 {
+	// el primer elemento va a la primer posición
 	if (_cantidad == 0) {
-		_clientes[_cantidad] = 
+		_clientes[_cantidad] = clave;
+		_significados[_cantidad] = significado;
 		_cantidad++;
+		return;
 	}
-
-	int actual = _cantidad;
-	while(actual > 0 && clave < _clientes[actual]) {
-
+	// TODO: chequear que no me estoy yendo más allá de la capacidad de clientes inicial
+	// si hay más de un elemento tengo que insertarlo ordenado
+	int actual = _cantidad;	
+	while(actual > 0 && clave < _clientes[actual-1]) {
+		_clientes[actual] = _clientes[actual-1];
+		_significados[actual] = _significados[actual-1];
+		actual--;
 	}
+	//inserto el elemento
+	_clientes[actual] = clave;
+	_significados[actual] = clave;
+
 	_cantidad++;
 }
 
