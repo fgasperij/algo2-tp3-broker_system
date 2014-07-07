@@ -4,8 +4,7 @@ using namespace aed2;
 
 Driver::Driver(const Conj<Cliente>& clientes)
 {
-	entero = 20;
-	// wolfie = Wolfie(clientes);
+	_wolfie = Wolfie(clientes);
 }
 /*
 Driver::~Driver()

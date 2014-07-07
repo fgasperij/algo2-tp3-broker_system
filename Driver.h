@@ -13,7 +13,7 @@ class Driver
 
 		Driver(const Conj<Cliente>& clientes);
 
-		// ~Driver();
+		~Driver();
 
 		// PRE: nombre() \notin Titulos()
 		void AgregarTitulo(const NombreTitulo& nombre, Dinero cotizacion, Nat max_acciones);
@@ -72,8 +72,7 @@ class Driver
 		Dinero ValorEsperadoParaVender(const Cliente& cliente, const NombreTitulo& titulo) const;
 
 	private:
-		int entero;
-		// Wolfie wolfie;
+		Wolfie _wolfie;
 	
 
 }; // class Driver

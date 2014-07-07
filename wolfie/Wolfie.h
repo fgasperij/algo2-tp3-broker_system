@@ -14,20 +14,31 @@ class Wolfie
 	struct infoCliente;
 
 	public:
-		Wolfie(const Conj<Cliente>& clientes);
+		Wolfie(const aed2::Conj<aed2::Cliente>& clientes);
 		int CantidadDeClientes();
 	private:
+		struct promesa {
+			bool pendiente;
+			aed2::Nat umbral;
+			aed2::Nat cantidad;
+		};
+		struct promesaCompraYVenta {
+			promesa compra;
+			promesa venta;
+		};
 		struct infoTituloCliente {
 			aed2::Nat cantidadDeAcciones;
-			promesas 
+			promesaCompraYVenta promesas;
 		};
-
 		struct infoCliente {
+			infoCliente() : cantidadTotalDeAcciones(0), titulos(DiccionarioTitulos<string, infoTituloCliente>()) {};
+			
 			DiccionarioTitulos<string, infoTituloCliente> titulos;
 			aed2::Nat cantidadTotalDeAcciones;
 		};
+		
 		int _cantidadDeClientes;
-		DiccionarioClientes<infoCliente> _clientes;
+		DiccionarioClientes<infoCliente> *_clientes;
 };
 
 #endif // WOLFIE_H_
