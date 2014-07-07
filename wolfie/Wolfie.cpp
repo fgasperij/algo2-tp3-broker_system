@@ -1,13 +1,14 @@
 #include "Wolfie.h"
 
-using namespace aed2;
+using namespace std;
 
-Wolfie::Wolfie(const Conj<Cliente>& clientes)
+Wolfie::Wolfie(const aed2::Conj<aed2::Cliente>& clientes)
 {
-	cantidadClientes = clientes.Cardinal();
+	_cantidadDeClientes = clientes.Cardinal();
+	aed2::Conj::Iterador 
 }
 
 int Wolfie::CantidadDeClientes()
 {
-	return cantidadClientes;
+	return _cantidadDeClientes;
 }

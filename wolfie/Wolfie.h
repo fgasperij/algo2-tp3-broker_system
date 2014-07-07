@@ -6,17 +6,28 @@
 #include "DiccionarioTitulos.h"
 #include "DiccionarioClientes.h"
 
-namespace aed2 {
+using namespace std;
 
 class Wolfie 
 {
+	struct infoTituloCliente;
+	struct infoCliente;
+
 	public:
 		Wolfie(const Conj<Cliente>& clientes);
 		int CantidadDeClientes();
 	private:
-		int cantidadClientes;
-};
+		struct infoTituloCliente {
+			aed2::Nat cantidadDeAcciones;
+			promesas 
+		};
 
-}
+		struct infoCliente {
+			DiccionarioTitulos<string, infoTituloCliente> titulos;
+			aed2::Nat cantidadTotalDeAcciones;
+		};
+		int _cantidadDeClientes;
+		DiccionarioClientes<infoCliente> _clientes;
+};
 
 #endif // WOLFIE_H_
