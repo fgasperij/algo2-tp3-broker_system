@@ -61,6 +61,11 @@ aed2::Nat DiccionarioClientes<T>::capacidad()
 template <typename T>
 void DiccionarioClientes<T>::Definir(const aed2::Nat cliente, const T& infoCliente)
 {
+	if (Definido(cliente)) {
+		resultadoBusqueda resCliente = BuscarCliente(cliente);
+		_infoClientes[resCliente.posicion] =  infoCliente;
+		return;
+	}
 	// el primer elemento va a la primer posición
 	if (_cantidad == 0) {
 		_clientes[_cantidad] = cliente;

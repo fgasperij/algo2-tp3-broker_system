@@ -51,6 +51,20 @@ void test_definir_todos_los_clientes()
 	ASSERT_EQ(true, dc.Definido(67));
 }
 
+void test_definir_dos_veces_la_misma_clave()
+{
+	DiccionarioClientes<string> dc(5);
+	string nombre1 = "Lolita1";
+	string nombre2 = "Lolita2";
+	string nombre3 = "Lolita3";
+	dc.Definir(31, nombre1);
+	dc.Definir(32, nombre2);
+	dc.Definir(67, nombre3);
+	string nombre4 = "REDEFINIDO";
+	dc.Definir(67, nombre4);
+	ASSERT_EQ(dc.Obtener(67), "REDEFINIDO");
+}
+
 void test_obtener_un_cliente()
 {
 	DiccionarioClientes<string> dc(5);
@@ -86,6 +100,7 @@ int main()
 	RUN_TEST(test_definir_un_cliente);
 	RUN_TEST(test_definir_dos_clientes);
 	RUN_TEST(test_definir_todos_los_clientes);
+	RUN_TEST(test_definir_dos_veces_la_misma_clave);
 	RUN_TEST(test_obtener_un_cliente);
 	RUN_TEST(test_obtener_entre_varios_clientes);
 	
