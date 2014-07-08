@@ -127,7 +127,7 @@ private:
     
 
     //Constructor del nodo. Pasamos por referencia el T
-    Nodo(const T& d, char c, bool end) : dato(d), caracter(c), end(end) 
+    Nodo(const T& d, char c, bool esPalabra) : significado(d), caracter(c), esPalabra(esPalabra) 
     { // Inicializamos los hijos del nodo con valor NULL
       for (int i = 0; i < LETRAS; ++i)
         this->hijos[i] = NULL;
@@ -215,7 +215,7 @@ DiccionarioTitulos<T>& DiccionarioTitulos<T>::operator=(const DiccionarioTitulos
   // borro lo actual
   destruir(this->raiz);
   // construir el mismo que el que recibimos  
-  this->raiz = new DiccionarioTitulos<T>::Nodo(otra.raiz->dato, otra.raiz->caracter, otra.raiz->end);
+  this->raiz = new DiccionarioTitulos<T>::Nodo(otra.raiz->significado, otra.raiz->caracter, otra.raiz->esPalabra);
   copiarHijos(otra.raiz, this->raiz);
 
   return *this;
@@ -228,7 +228,7 @@ void copiarHijos(const typename DiccionarioTitulos<T>::Nodo *fuente, typename Di
     if (fuente->hijos[i] == NULL) {
       destino->hijos[i] == NULL;
     } else {
-      typename DiccionarioTitulos<T>::Nodo *nuevoNodo = new typename DiccionarioTitulos<T>::Nodo(fuente->hijos[i]->dato, fuente->hijos[i]->caracter, fuente->hijos[i]->end);
+      typename DiccionarioTitulos<T>::Nodo *nuevoNodo = new typename DiccionarioTitulos<T>::Nodo(fuente->hijos[i]->significado, fuente->hijos[i]->caracter, fuente->hijos[i]->esPalabra);
       copiarHijos(fuente->hijos[i], nuevoNodo);
     }
   }   
