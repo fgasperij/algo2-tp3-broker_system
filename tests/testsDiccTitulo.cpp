@@ -7,6 +7,7 @@
 #include "../wolfie/DiccionarioTitulos.h"
  
 using namespace std;
+using namespace aed2;
 typedef unsigned long Nat;
 
 struct titulo
@@ -18,13 +19,21 @@ struct titulo
     int cotizacion;            		   	
 };
 
+struct titulo_sin_string
+{	
+	public:
+    int maximo;             		
+    int umbral; 
+    int cotizacion;            		   	
+};
+
 
 /*
  * Crea un Diccionario con 1 elemento, lo buscamos y lo obtenemos
  */
-void crear_dicc_1_elem() {
+void test_crear_dicc_1_elem() {
 	
-	aed2::DiccionarioTitulos<int> t;
+	DiccionarioTitulos<int> t;
 	
 	string nombre = "Jose";
 	int valor=5;
@@ -37,9 +46,9 @@ void crear_dicc_1_elem() {
 /*
  * Crea un Diccionario sin elementos
  */
-void crear_dicc_0_elem() {
+void test_crear_dicc_0_elem() {
 	
-	aed2::DiccionarioTitulos<int> t;
+	DiccionarioTitulos<int> t;
 	
 	string nombre = "Jose";
 	
@@ -53,7 +62,7 @@ void crear_dicc_0_elem() {
  */
 
 template<typename T>
-void definir_assert(aed2::DiccionarioTitulos<T>& t, const string& nombre, const T& valor)
+void definir_assert(DiccionarioTitulos<T>& t, const string& nombre, const T& valor)
 {
 	t.definir(nombre, valor);
 	ASSERT_EQ(t.definido(nombre), true);
@@ -62,9 +71,9 @@ void definir_assert(aed2::DiccionarioTitulos<T>& t, const string& nombre, const 
 /*
  * Crea un Diccionario con elementos parecidos
  */
-void nombres_parecidos() {
+void test_nombres_parecidos() {
 	
-	aed2::DiccionarioTitulos<int> t;
+	DiccionarioTitulos<int> t;
 	
 	definir_assert(t,"Jose",40);
 	definir_assert(t,"JoseLus",20);
@@ -72,8 +81,10 @@ void nombres_parecidos() {
 	definir_assert(t,"JoseLuis",50);
 	definir_assert(t,"Joses",70);
 	definir_assert(t,"Joseus",990);
-	cout << endl;
-	t.claves();
+	#ifdef DEBUG
+		cout << endl;
+		t.claves();
+  #endif
 	
 }
 /*
@@ -81,7 +92,7 @@ void nombres_parecidos() {
  * TODO: revisar .claves()
  * Obviamente cout << struct explota. Ver de sobrecargar un ostream
  */
-void pasando_structs() {
+void test_pasando_structs() {
 
 	titulo t1;
 	t1.maximo = 2;
@@ -89,7 +100,7 @@ void pasando_structs() {
 	t1.umbral=22;
 	t1.nombre="YPF";
 	
-	aed2::DiccionarioTitulos<titulo> t;
+	DiccionarioTitulos<titulo> t;
 	
 	t.definir(t1.nombre, t1);
 	ASSERT_EQ(t.definido(t1.nombre), true);
@@ -99,16 +110,18 @@ void pasando_structs() {
 	ASSERT_EQ(t1.cotizacion, t_leido.cotizacion);
 	ASSERT_EQ(t1.maximo, t_leido.maximo);
 	
-	cout << endl;
-	cout << "	" 	<< t_leido.nombre			<<	endl;
-	cout << "		Max:"<< t_leido.maximo		<<	endl;
-	cout << "		Cot:"<< t_leido.cotizacion	<<	endl;
-	cout << "		Umb:"<< t_leido.umbral		<<	endl;
+	#ifdef DEBUG
+		cout << endl;
+		cout << "	" 	<< t_leido.nombre			<<	endl;
+		cout << "		Max:"<< t_leido.maximo		<<	endl;
+		cout << "		Cot:"<< t_leido.cotizacion	<<	endl;
+		cout << "		Umb:"<< t_leido.umbral		<<	endl;
+	#endif
 }
 /*
  * Definir 2 veces la misma structura
  */
-void definir_2veces_lomismo() {
+void test_definir_2veces_lomismo() {
 
 	titulo t1;
 	t1.maximo = 2;
@@ -116,7 +129,7 @@ void definir_2veces_lomismo() {
 	t1.umbral=22;
 	t1.nombre="YPF";
 	
-	aed2::DiccionarioTitulos<titulo> t;
+	DiccionarioTitulos<titulo> t;
 	
 	t.definir(t1.nombre, t1);
 	ASSERT_EQ(t.definido(t1.nombre), true);
@@ -136,21 +149,22 @@ void definir_2veces_lomismo() {
 	ASSERT_EQ(t1.cotizacion, t_leido2.cotizacion);
 	ASSERT_EQ(t1.maximo, t_leido2.maximo);
 	
-	cout << endl;
-	cout << "	" 	<< t_leido.nombre			<<	endl;
-	cout << "		Max:"<< t_leido.maximo		<< " - " << t_leido2.maximo 	<<	endl;
-	cout << "		Cot:"<< t_leido.cotizacion	<< " - " << t_leido2.cotizacion <<	endl;
-	cout << "		Umb:"<< t_leido.umbral		<< " - " << t_leido2.umbral		<<	endl;
-	
+	#ifdef DEBUG
+		cout << endl;
+		cout << "	" 	<< t_leido.nombre			<<	endl;
+		cout << "		Max:"<< t_leido.maximo		<< " - " << t_leido2.maximo 	<<	endl;
+		cout << "		Cot:"<< t_leido.cotizacion	<< " - " << t_leido2.cotizacion <<	endl;
+		cout << "		Umb:"<< t_leido.umbral		<< " - " << t_leido2.umbral		<<	endl;
+	#endif
 }
 
 
 /*
  * Titulos con nombres rockeros
  */
-void nombres_raros() {
+void test_nombres_raros() {
 	
-	aed2::DiccionarioTitulos<int> t;
+	DiccionarioTitulos<int> t;
 	
 	definir_assert(t,"8765432",40);
 	definir_assert(t,"_5342eERWERWew",20);
@@ -158,48 +172,54 @@ void nombres_raros() {
 	definir_assert(t,"PEEP",50);
 	definir_assert(t,"!DSA",70);
 	definir_assert(t,"Jose",990);
-	cout << endl;
-	t.claves();
+	#ifdef DEBUG
+		cout << endl;
+		t.claves();
+	#endif
 }
 
 /*
  * Crear Iterador 
  */
-void crear_iterador() {
+void test_crear_iterador() {
 	
-	aed2::DiccionarioTitulos<int> t;
+	DiccionarioTitulos<int> t;
 	
 	definir_assert(t,"8765432",40);
 	definir_assert(t,"_5342eERWERWew",20);
-	aed2::DiccionarioTitulos<int>::const_Iterador it = t.CrearIt();
-	//cout << endl;
-	//t.claves();
+	DiccionarioTitulos<int>::const_Iterador it = t.CrearIt();
+	#ifdef DEBUG
+		cout << endl;
+		t.claves();
+	#endif
 }
 /*
  * Crear Iterador y ver si hay siguiente
  */
-void crear_iterador_2next() {
+void test_crear_iterador_2next() {
 	
-	aed2::DiccionarioTitulos<int> t;
+	DiccionarioTitulos<int> t;
 	
 	definir_assert(t,"8765432",40);
 	definir_assert(t,"_5342eERWERWew",20);
-	aed2::DiccionarioTitulos<int>::const_Iterador it = t.CrearIt();
+	DiccionarioTitulos<int>::const_Iterador it = t.CrearIt();
   ASSERT_EQ(it.HaySiguiente(), true);
   it.Avanzar();
   ASSERT_EQ(it.HaySiguiente(), true);
   it.Avanzar();
   ASSERT_EQ(it.HaySiguiente(), false);
-	//cout << endl;
-	//t.claves();
+  #ifdef DEBUG
+		cout << endl;
+		t.claves();
+	#endif
 }
 
 /*
  * It - Siguiente Clave
  */
-void it_siguienteClave() {
+void test_it_siguienteClave() {
 	
-	aed2::DiccionarioTitulos<int> t;
+	DiccionarioTitulos<int> t;
 	
 	string claves[3];
 	claves[1] = "Maradona";
@@ -207,23 +227,25 @@ void it_siguienteClave() {
 	
 	definir_assert(t,claves[1],10);
 	definir_assert(t,claves[2],4);
-	aed2::DiccionarioTitulos<int>::const_Iterador it = t.CrearIt();
+	DiccionarioTitulos<int>::const_Iterador it = t.CrearIt();
   ASSERT_EQ(it.HaySiguiente(), true);
   ASSERT_EQ(it.SiguienteClave(), claves[1]);
   it.Avanzar();
   ASSERT_EQ(it.HaySiguiente(), true);
   it.Avanzar();
   ASSERT_EQ(it.HaySiguiente(), false);
-	//cout << endl;
-	//t.claves();
+  #ifdef DEBUG
+		cout << endl;
+		t.claves();
+	#endif
 }
 
 /*
  * It - iteramos y mostramos todas las claves
  */
-void it_mostrarClaves() {
+void test_it_mostrarClaves() {
 	
-	aed2::DiccionarioTitulos<int> t;
+	DiccionarioTitulos<int> t;
 	
 	string claves[3];
 	claves[1] = "Maradona";
@@ -233,12 +255,16 @@ void it_mostrarClaves() {
 	definir_assert(t,claves[1],10);
 	definir_assert(t,claves[2],4);
 	definir_assert(t,claves[0],16);
-	aed2::DiccionarioTitulos<int>::const_Iterador it = t.CrearIt();
+	DiccionarioTitulos<int>::const_Iterador it = t.CrearIt();
 	int i=0;
-	cout << endl;
+	#ifdef DEBUG
+		cout << endl;
+	#endif
 	while(it.HaySiguiente())
 	{
-		cout << "	" << it.SiguienteClave() << endl;
+		#ifdef DEBUG
+			cout << "	" << it.SiguienteClave() << endl;
+		#endif
 		it.Avanzar();
 		i++;
 	}
@@ -249,9 +275,9 @@ void it_mostrarClaves() {
 /*
  * It - iteramos y vemos el significado
  */
-void it_mostrarClavesAndSig() {
+void test_it_mostrarClavesAndSig() {
 	
-	aed2::DiccionarioTitulos<int> t;
+	DiccionarioTitulos<int> t;
 	
 	string claves[3];
 	claves[1] = "Rojo";
@@ -261,12 +287,16 @@ void it_mostrarClavesAndSig() {
 	definir_assert(t,claves[1],16);
 	definir_assert(t,claves[2],10);
 	definir_assert(t,claves[0],9);
-	aed2::DiccionarioTitulos<int>::const_Iterador it = t.CrearIt();
+	DiccionarioTitulos<int>::const_Iterador it = t.CrearIt();
 	int i=0;
-	cout << endl;
+	#ifdef DEBUG
+		cout << endl;
+	#endif
 	while(it.HaySiguiente())
 	{
-		cout << "	" << it.SiguienteClave() << " - " << it.SiguienteSignificado() << endl;
+		#ifdef DEBUG
+			cout << "	" << it.SiguienteClave() << " - " << it.SiguienteSignificado() << endl;
+		#endif
 		it.Avanzar();
 		i++;
 	}
@@ -277,9 +307,9 @@ void it_mostrarClavesAndSig() {
 /*
  * It - iteramos y vemos el significado
  */
-void it_redefinirSignificados() {
+void test_it_redefinirSignificados() {
 	
-	aed2::DiccionarioTitulos<int> t;
+	DiccionarioTitulos<int> t;
 	
 	string claves[3];
 	claves[1] = "Rojo";
@@ -294,17 +324,21 @@ void it_redefinirSignificados() {
 	definir_assert(t,claves[0],num[0]);
 	definir_assert(t,claves[1],num[1]);
 	definir_assert(t,claves[2],num[2]);
-	aed2::DiccionarioTitulos<int>::const_Iterador it = t.CrearIt();
+	DiccionarioTitulos<int>::const_Iterador it = t.CrearIt();
 
 	definir_assert(t,claves[0],num[0]*10);
 	definir_assert(t,claves[1],num[1]*10);
 	definir_assert(t,claves[2],num[2]*10);
 	
 	int i=0;
-	cout << endl;
+	#ifdef DEBUG
+		cout << endl;
+	#endif
 	while(it.HaySiguiente())
 	{
-		cout << "	" << it.SiguienteClave() << " - " << it.SiguienteSignificado() << endl;
+		#ifdef DEBUG
+			cout << "	" << it.SiguienteClave() << " - " << it.SiguienteSignificado() << endl;
+		#endif
 		ASSERT_EQ(it.SiguienteSignificado(), num[i]*10);
 		it.Avanzar();
 		i++;
@@ -316,9 +350,9 @@ void it_redefinirSignificados() {
 /*
  * It - iteramos pa delante y pa tras
  */
-void it_idaVuelta() {
+void test_it_idaVuelta() {
 	
-	aed2::DiccionarioTitulos<int> t;
+	DiccionarioTitulos<int> t;
 	
 	string claves[3];
 	claves[0] = "Pipita";
@@ -333,53 +367,121 @@ void it_idaVuelta() {
 	definir_assert(t,claves[0],num[0]);
 	definir_assert(t,claves[1],num[1]);
 	definir_assert(t,claves[2],num[2]);
-	aed2::DiccionarioTitulos<int>::const_Iterador it = t.CrearIt();
+	DiccionarioTitulos<int>::const_Iterador it = t.CrearIt();
 
 	definir_assert(t,claves[0],num[0]*10);
 	definir_assert(t,claves[1],num[1]*10);
 	definir_assert(t,claves[2],num[2]*10);
 	
 	int i=0;
-	cout << endl;
+	#ifdef DEBUG
+		cout << endl;
+	#endif
 	while(it.HaySiguiente())
 	{
-		cout << "	" << it.SiguienteClave() << " - " << it.SiguienteSignificado() << endl;
+		#ifdef DEBUG
+			cout << "	" << it.SiguienteClave() << " - " << it.SiguienteSignificado() << endl;
+		#endif
 		ASSERT_EQ(it.SiguienteSignificado(), num[i]*10);
 		it.Avanzar();
 		i++;
 	}
 	
 	i=0;
-	cout << endl << " ---- Para Atras " << endl;
+	#ifdef DEBUG
+		cout << endl << " ---- Para Atras " << endl;
+	#endif
 	while(it.HayAnterior())
 	{
-		cout << "	" << it.AnteriorClave() << " - " << it.AnteriorSignificado() << endl;
+		#ifdef DEBUG
+			cout << "	" << it.AnteriorClave() << " - " << it.AnteriorSignificado() << endl;
+		#endif
 		ASSERT_EQ(it.AnteriorSignificado(), num[2-i]*10);
 		it.Retroceder();
 		i++;
-	}
-	
-	
+	}	
 	ASSERT_EQ(i, 3);
-	
 }
 
-
+/*
+ * Test: It - iteramos pa delante y pa tras
+ * 	Redefinir
+ *	Tuplas
+ *	Shake It
+ */
+void tests_it_redef_shakeit() {
+	titulo_sin_string t1;
+	t1.maximo = 1;
+	t1.cotizacion = 10;
+	t1.umbral=100;
+	
+	DiccionarioTitulos<titulo_sin_string> t;
+	
+	
+	t.definir("ABCDEFGHIJK", t1);
+	ASSERT_EQ(t.definido("ABCDEFGHIJK"), true);
+	
+	titulo_sin_string t_leido = t.obtener("ABCDEFGHIJK");
+	ASSERT_EQ(t1.umbral, t_leido.umbral);
+	ASSERT_EQ(t1.cotizacion, t_leido.cotizacion);
+	ASSERT_EQ(t1.maximo, t_leido.maximo);
+	//Nodo intermedio
+	titulo_sin_string t2;
+	t2.maximo = 2;
+	t2.cotizacion = 20;
+	t2.umbral=200;
+	t.definir("ABCDE", t2);
+	ASSERT_EQ(t.definido("ABCDE"), true);
+	titulo_sin_string t_leido_2 = t.obtener("ABCDE");
+	ASSERT_EQ(t2.umbral, t_leido_2.umbral);
+	ASSERT_EQ(t2.cotizacion, t_leido_2.cotizacion);
+	ASSERT_EQ(t2.maximo, t_leido_2.maximo);
+	
+	//Nodo mas largo
+	titulo_sin_string t3;
+	t3.maximo = 3;
+	t3.cotizacion = 30;
+	t3.umbral=300;
+	t.definir("ABCDEFGHIJKLMNO", t3);
+	ASSERT_EQ(t.definido("ABCDEFGHIJKLMNO"), true);
+	titulo_sin_string t_leido_3 = t.obtener("ABCDEFGHIJKLMNO");
+	ASSERT_EQ(t3.umbral, t_leido_3.umbral);
+	ASSERT_EQ(t3.cotizacion, t_leido_3.cotizacion);
+	ASSERT_EQ(t3.maximo, t_leido_3.maximo);
+	
+	//Nodos no definidos pero que estan para la construccion de la cadena mas larga
+	ASSERT_EQ(t.definido("ABCDEFGHIJKLMN"), false);
+	ASSERT_EQ(t.definido("ABCDEFGHIJKL"), false);
+	ASSERT_EQ(t.definido("ABCDEF"), false);
+	ASSERT_EQ(t.definido("ABC"), false);
+	
+	//Crear un Iterador
+	DiccionarioTitulos<titulo_sin_string>::const_Iterador it = t.CrearIt();
+	
+	int i=0;
+	while(it.HaySiguiente())
+	{
+		it.Avanzar();
+		i++;
+	}
+	ASSERT_EQ(i, 3);
+}
 
 int main() {
-  RUN_TEST(crear_dicc_1_elem);
-  RUN_TEST(crear_dicc_0_elem);
-  RUN_TEST(nombres_parecidos);
-  RUN_TEST(pasando_structs);
-  RUN_TEST(definir_2veces_lomismo);
-  RUN_TEST(nombres_raros);
-  RUN_TEST(crear_iterador);
-  RUN_TEST(crear_iterador_2next);
-  RUN_TEST(it_siguienteClave);
-  RUN_TEST(it_mostrarClaves);
-  RUN_TEST(it_mostrarClavesAndSig);
-  RUN_TEST(it_redefinirSignificados);
-  RUN_TEST(it_idaVuelta);
+  RUN_TEST(test_crear_dicc_1_elem);
+  RUN_TEST(test_crear_dicc_0_elem);
+  RUN_TEST(test_nombres_parecidos);
+  RUN_TEST(test_pasando_structs);
+  RUN_TEST(test_definir_2veces_lomismo);
+  RUN_TEST(test_nombres_raros);
+  RUN_TEST(test_crear_iterador);
+  RUN_TEST(test_crear_iterador_2next);
+  RUN_TEST(test_it_siguienteClave);
+  RUN_TEST(test_it_mostrarClaves);
+  RUN_TEST(test_it_mostrarClavesAndSig);
+  RUN_TEST(test_it_redefinirSignificados);
+  RUN_TEST(test_it_idaVuelta);
+  RUN_TEST(tests_it_redef_shakeit);
   return 0;
 }
 

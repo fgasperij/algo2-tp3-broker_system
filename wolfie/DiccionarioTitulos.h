@@ -24,8 +24,8 @@
 #include "../aed2/Lista.h"
 #define LETRAS 256
 
-namespace aed2
-{
+using namespace aed2;
+
 
 template <typename T>
 class DiccionarioTitulos
@@ -51,7 +51,7 @@ class DiccionarioTitulos
   DiccionarioTitulos<T>& operator=(const DiccionarioTitulos<T>& otra);
 
   /// Operaciones básicas
-  void definir(const String &clave, const T& dato);
+  void definir(const String &clave, const T& significado);
   bool definido(const String &clave);
   void borrar(const String &clave);
   const T& obtener(const String &clave);
@@ -120,13 +120,13 @@ private:
 
   struct Nodo
   {
-    T dato;
+    T significado;
     char caracter;              // Valor del caracter
-    bool end;                   // Flag para indicar si es palabra
+    bool esPalabra;                   // Flag para indicar si es palabra
     Nodo * hijos[LETRAS];       // Letras del alfabeto
     
     //Constructor del nodo. Pasamos por referencia el T
-    Nodo(const T& d, char c) : dato(d), caracter(c), end(false) 
+    Nodo(const T& d, char c) : significado(d), caracter(c), esPalabra(false) 
     { // Inicializamos los hijos del nodo con valor NULL
       for (int i = 0; i < LETRAS; ++i)
         this->hijos[i] = NULL;
@@ -134,7 +134,7 @@ private:
     
     // Constructor del nodo sin parametros. Necesario para nodo raiz
     // Sobrecarga
-    Nodo() : end(false)
+    Nodo() : esPalabra(false)
     { // Inicializamos los hijos del nodo con valor NULL
       for (int i = 0; i < LETRAS; ++i)
         this->hijos[i] = NULL;
@@ -142,7 +142,7 @@ private:
     
     // Constructor del nodo definiciendo el caracter nomas. Necesario para nodos intermedios
     // Sobrecarga
-    Nodo(char c): caracter(c), end(false)
+    Nodo(char c): caracter(c), esPalabra(false)
     { // Inicializamos los hijos del nodo con valor NULL
       for (int i = 0; i < LETRAS; ++i)
         this->hijos[i] = NULL;
@@ -161,9 +161,9 @@ private:
   // Funciones Auxiliares Privadas
   // ------------------------------------------
   // Debug - Recorrer Claves
-  void RecorrerClaves(aed2::DiccionarioTitulos<T>::Nodo* n, String prefijo);
+  void RecorrerClaves(DiccionarioTitulos<T>::Nodo* n, String prefijo);
   // Borrar nodos
-  void destruir(aed2::DiccionarioTitulos<T>::Nodo* n);
+  void destruir(DiccionarioTitulos<T>::Nodo* n);
 
 };
 
@@ -192,7 +192,7 @@ template <typename T>
 DiccionarioTitulos<T>::DiccionarioTitulos()
 {
   this->raiz = new Nodo();
-  this->raiz->end = false;
+  this->raiz->esPalabra = false;
 }
 
 /*
@@ -211,14 +211,14 @@ DiccionarioTitulos<T>::~DiccionarioTitulos()
  * --> Recorre recursivamente y va borrando todo
  */
 template <typename T>
-void DiccionarioTitulos<T>::destruir(aed2::DiccionarioTitulos<T>::Nodo* n)
+void DiccionarioTitulos<T>::destruir(DiccionarioTitulos<T>::Nodo* n)
 {
   if(n != NULL) // Evitar Segmentation fault
   {
     for( int i= 0; i< LETRAS; ++i)
     {
       if(n-> hijos[i] != NULL)
-        destruir((aed2::DiccionarioTitulos<T>::Nodo*)n->hijos[i]);
+        destruir((DiccionarioTitulos<T>::Nodo*)n->hijos[i]);
     }  
     delete n;
   }
@@ -228,12 +228,12 @@ void DiccionarioTitulos<T>::destruir(aed2::DiccionarioTitulos<T>::Nodo* n)
  * Definir
  * Pasamos la clave y el significado
  * Ambos son constantes x referencia
- * Permite reDefinir claves para cambiar datos
+ * Permite reDefinir claves para cambiar significados
  * Solo agrega a las listas de iteradores si es una nueva clave.
- * Esto lo sabemos verificando el flag Nodo->end
+ * Esto lo sabemos verificando el flag Nodo->esPalabra
  */
 template <typename T>
-void DiccionarioTitulos<T>::definir(const String &clave, const T& dato)
+void DiccionarioTitulos<T>::definir(const String &clave, const T& significado)
 {
 
 		Nodo * NodoActual = raiz;
@@ -250,29 +250,29 @@ void DiccionarioTitulos<T>::definir(const String &clave, const T& dato)
             NodoActual = NodoActual->hijos[index];
         else
         {		//Nodos intermedios de complemento C A* S* A que no existen
-            Nodo * nuevoNodo = new Nodo(actualChar);	//new Nodo(dato,actualChar);
+            Nodo * nuevoNodo = new Nodo(actualChar);	//new Nodo(significado,actualChar);
             NodoActual->hijos[index] = nuevoNodo;
             NodoActual = nuevoNodo;
         }
-        // pregunto si llegamos al nodo donde debemos guardar el dato
+        // pregunto si llegamos al nodo donde debemos guardar el significado
         // C A S A*
         if (i == clave.size() - 1)
         {		
-            NodoActual->dato = dato;	// Redefinir paso por copia....... revisar!
-		        if (NodoActual->end == false) // Nueva definicion
+            NodoActual->significado = significado;	// Redefinir paso por copia....... revisar!
+		        if (NodoActual->esPalabra == false) // Nueva definicion
 		        {
 				    	// Soporte Iterador, si la clave no estaba definida la agrego a la lista
 				    	// Si estaba definida, no hacemos nada
 							claves_.AgregarAtras(clave);										// Guardamos el string
-				      significados_.AgregarAtras(& NodoActual->dato); // Guardamos la posicion de memoria
-				      NodoActual->end = true;
+				      significados_.AgregarAtras(& NodoActual->significado); // Guardamos la posicion de memoria
+				      NodoActual->esPalabra = true;
 				    }
         }
     }
 }
 
 //Definido???
-// Utilizamos el flag Nodo->end para chequear si una clave esta definida o no
+// Utilizamos el flag Nodo->esPalabra para chequear si una clave esta definida o no
 template <typename T>
 bool DiccionarioTitulos<T>::definido(const String &clave)
 {
@@ -294,7 +294,7 @@ bool DiccionarioTitulos<T>::definido(const String &clave)
             return false;
 
 				// Llego a destino pero no esta definido 
-        if (i == clave.size() - 1 && !NodoActual->end)
+        if (i == clave.size() - 1 && !NodoActual->esPalabra)
             return false;
     }
     return true;
@@ -322,15 +322,15 @@ const T& DiccionarioTitulos<T>::obtener(const String &clave)
         /*else
           // Aca hay que ver bien el control de errores
           // Que pasa si no lo encuentra?
-            return this->raiz->dato;
+            return this->raiz->significado;
 
         if (i == clave.size() - 1 && !NodoActual->end)
           // No lo encuentra
-            return this->raiz->dato;
+            return this->raiz->significado;
          */
     }
-    // Lo encuentra, entonces devuelvo el dato
-    return NodoActual->dato;
+    // Lo encuentra, entonces devuelvo el significado
+    return NodoActual->significado;
 }
 
 // Borrar
@@ -352,12 +352,12 @@ void DiccionarioTitulos<T>::borrar(const String &clave)
             NodoActual = NodoActual->hijos[index];
         else
             return;
-        if (i == clave.size() - 1 && NodoActual->end)
-            NodoActual->end = false;
+        if (i == clave.size() - 1 && NodoActual->esPalabra)
+            NodoActual->esPalabra = false;
     }
 }
 
-// Funcion para mostrar los datos
+// Funcion para mostrar los significados
 // TODO
 // Mostrar Arbol Trie
 template<class T>
@@ -374,14 +374,14 @@ std::ostream& DiccionarioTitulos<T>::mostrar(std::ostream& o) const{
 // Debugging
 // Recorremos recursivamente el DiccionarioTrie para mostrar las claves
 template <typename T>
-void DiccionarioTitulos<T>::RecorrerClaves(aed2::DiccionarioTitulos<T>::Nodo * Nodo, String prefijo = "")
+void DiccionarioTitulos<T>::RecorrerClaves(DiccionarioTitulos<T>::Nodo * Nodo, String prefijo = "")
 {
 	if (this->raiz != NULL) 
 	{
 		  // Si es nodo final -> tiene significado y lo mostramos
 		  // Evitamos mostrar el nodo raiz, que es un nodo dummy
-		  if (Nodo->end && Nodo != this->raiz)
-		      std::cout << "        " << prefijo << " - " << Nodo->dato  << std::endl;
+		  if (Nodo->esPalabra && Nodo != this->raiz)
+		      std::cout << "        " << prefijo << " - " << Nodo->significado  << std::endl;
 
 		  for (int i = 0; i < LETRAS; ++i)
 		  {
@@ -537,7 +537,5 @@ bool DiccionarioTitulos<T>::const_Iterador::operator == (const typename Dicciona
   return it_claves_ == otro.it_claves_ && it_significados_ == otro.it_significados_;
 }
 
-
-}// Final del NameSpace aed2
 
 #endif //DICCTITULOS_H_
