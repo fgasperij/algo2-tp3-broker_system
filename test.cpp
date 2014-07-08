@@ -1,3 +1,6 @@
+// g++ test.cpp wolfie/Wolfie.cpp Driver.cpp -o test
+// valgrind --leak-check=full ./test
+
 #include "Driver.h"
 #include "mini_test.h"
 
@@ -80,7 +83,45 @@ bool Comparar(const T& t, const S& s)
  * Ejemplo de caso de test, con llamadas a las rutinas de aserción 
  * definidas en mini_test.h
  */
-void test_wolfie_simple()
+void test_driver_y_wolfie_conectados()
+{
+	Conj<Cliente> clientes;
+	clientes.Agregar(1);
+	clientes.Agregar(5);
+
+	Driver wolfie(clientes);	
+}
+
+void test_wolfie_cantidadDeClientes()
+{
+	Conj<Cliente> clientes;
+	clientes.Agregar(1);
+	clientes.Agregar(5);
+
+	Driver wolfie(clientes);
+
+	ASSERT_EQ(2, wolfie.CantidadDeClientes());	
+}
+
+void test_wolfie_iesimoCliente()
+{
+	Conj<Cliente> clientes;
+	clientes.Agregar(1);
+	clientes.Agregar(5);
+	clientes.Agregar(73);
+	clientes.Agregar(35);
+	clientes.Agregar(25);
+
+	Driver wolfie(clientes);
+
+	ASSERT_EQ(1, wolfie.IesimoCliente(1));		
+	ASSERT_EQ(5, wolfie.IesimoCliente(2));		
+	ASSERT_EQ(25, wolfie.IesimoCliente(3));		
+	ASSERT_EQ(35, wolfie.IesimoCliente(4));		
+	ASSERT_EQ(73, wolfie.IesimoCliente(5));		
+}
+
+void test_wolfie_setup()
 {
 	Conj<Cliente> clientes;
 	clientes.Agregar(1);
@@ -88,18 +129,21 @@ void test_wolfie_simple()
 
 	Driver wolfie(clientes);	
 
-	// ASSERT(wolfie.CantidadDeClientes() == clientes.Cardinal());
+	ASSERT(wolfie.CantidadDeClientes() == clientes.Cardinal());
 
-	// for(Nat i=0; i<wolfie.CantidadDeClientes(); i++) {
-	// 	ASSERT( clientes.Pertenece( wolfie.IesimoCliente(i) ) );
-	// }
+	for(Nat i=0; i<wolfie.CantidadDeClientes(); i++) {
+		ASSERT( clientes.Pertenece( wolfie.IesimoCliente(i) ) );
+	}
 
-	// ASSERT_EQ(wolfie.CantidadDeTitulos(), 0);
+	ASSERT_EQ(wolfie.CantidadDeTitulos(), 0);	
 }
 
 int main(int argc, char **argv)
 {
-	RUN_TEST(test_wolfie_simple);
+	RUN_TEST(test_driver_y_wolfie_conectados);
+	RUN_TEST(test_wolfie_cantidadDeClientes);
+	RUN_TEST(test_wolfie_iesimoCliente);
+	// RUN_TEST(test_wolfie_setup);
 	
 	return 0;
 }

@@ -19,6 +19,7 @@ class DiccionarioClientes
 		bool Definido(const aed2::Nat cliente) const;
 		// @pre el cliente está definido
 		const T& Obtener(const aed2::Nat cliente) const;
+		aed2::Cliente Iesimo(aed2::Nat i) const;		
 
 		aed2::Nat capacidad();
 	private:
@@ -131,5 +132,12 @@ typename DiccionarioClientes<T>::resultadoBusqueda DiccionarioClientes<T>::Busca
 	return result; 
 
 }
+
+template <typename T>
+aed2::Cliente DiccionarioClientes<T>::Iesimo(aed2::Nat i) const
+{
+	return _clientes[(i-1)];
+}
+
 
 #endif // DICCIONARIO_CLIENTES_H

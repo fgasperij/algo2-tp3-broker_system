@@ -26,7 +26,6 @@
 
 using namespace aed2;
 
-
 template <typename T>
 class DiccionarioTitulos
 {
@@ -48,7 +47,8 @@ class DiccionarioTitulos
   ~DiccionarioTitulos();
   
   /// Operacion de asignacion
-  DiccionarioTitulos<T>& operator=(const DiccionarioTitulos<T>& otra);
+  template <typename U>
+  DiccionarioTitulos<T>& operator=(const DiccionarioTitulos<U>& otra);
 
   /// Operaciones básicas
   void definir(const String &clave, const T& significado);
@@ -82,9 +82,9 @@ class DiccionarioTitulos
 
         bool HaySiguiente() const;
         bool HayAnterior() const;
-        const String& SiguienteClave() const;
+        const aed2::String& SiguienteClave() const;
         const T& SiguienteSignificado() const;
-        const String& AnteriorClave() const;
+        const aed2::String& AnteriorClave() const;
         const T& AnteriorSignificado() const;
         const_Elem Siguiente() const;
         const_Elem Anterior() const;
@@ -93,8 +93,8 @@ class DiccionarioTitulos
 
     private:
 
-        typename Lista<String>::const_Iterador it_claves_;
-        typename Lista<T*>::const_Iterador it_significados_;
+        aed2::Lista<aed2::String>::const_Iterador it_claves_;
+        typename aed2::Lista<T*>::const_Iterador it_significados_;
 
         const_Iterador(const DiccionarioTitulos<T>* d);
 
@@ -105,10 +105,10 @@ class DiccionarioTitulos
     {
       public:
 
-        const String& clave;
+        const aed2::String& clave;
         const T& significado;
 
-        const_Elem(const String& c, const T& s) : clave(c), significado(s) {}
+        const_Elem(const aed2::String& c, const T& s) : clave(c), significado(s) {}
 
         friend std::ostream& operator << (std::ostream& os, const DiccionarioTitulos<T>::const_Elem& e) {
           return os << e.clave << ":" << e.significado;
@@ -125,6 +125,15 @@ private:
     bool esPalabra;                   // Flag para indicar si es palabra
     Nodo * hijos[LETRAS];       // Letras del alfabeto
     
+
+    //Constructor del nodo. Pasamos por referencia el T
+    Nodo(const T& d, char c, bool end) : dato(d), caracter(c), end(end) 
+    { // Inicializamos los hijos del nodo con valor NULL
+      for (int i = 0; i < LETRAS; ++i)
+        this->hijos[i] = NULL;
+    };
+
+
     //Constructor del nodo. Pasamos por referencia el T
     Nodo(const T& d, char c) : significado(d), caracter(c), esPalabra(false) 
     { // Inicializamos los hijos del nodo con valor NULL
@@ -165,6 +174,8 @@ private:
   // Borrar nodos
   void destruir(DiccionarioTitulos<T>::Nodo* n);
 
+  void copiarHijos(DiccionarioTitulos<T>::Nodo *fuente, DiccionarioTitulos<T>::Nodo *destino);
+
 };
 
 /*---------------------------------------------------------------
@@ -194,6 +205,36 @@ DiccionarioTitulos<T>::DiccionarioTitulos()
   this->raiz = new Nodo();
   this->raiz->esPalabra = false;
 }
+
+template <typename T>
+template <typename U>
+DiccionarioTitulos<T>& DiccionarioTitulos<T>::operator=(const DiccionarioTitulos<U>& otra)
+{
+  if( this == &otra ) return *this;
+    
+  // borro lo actual
+  destruir(this->raiz);
+  // construir el mismo que el que recibimos  
+  this->raiz = new DiccionarioTitulos<T>::Nodo(otra.raiz->dato, otra.raiz->caracter, otra.raiz->end);
+  copiarHijos(otra.raiz, this->raiz);
+
+  return *this;
+}
+
+template <typename T>
+void copiarHijos(const typename DiccionarioTitulos<T>::Nodo *fuente, typename DiccionarioTitulos<T>::Nodo *destino) 
+{
+  for(unsigned i = 0; i < LETRAS; ++i) {
+    if (fuente->hijos[i] == NULL) {
+      destino->hijos[i] == NULL;
+    } else {
+      typename DiccionarioTitulos<T>::Nodo *nuevoNodo = new typename DiccionarioTitulos<T>::Nodo(fuente->hijos[i]->dato, fuente->hijos[i]->caracter, fuente->hijos[i]->end);
+      copiarHijos(fuente->hijos[i], nuevoNodo);
+    }
+  }   
+}
+
+
 
 /*
  * Destructor DiccionarioTitulos
@@ -274,7 +315,7 @@ void DiccionarioTitulos<T>::definir(const String &clave, const T& significado)
 //Definido???
 // Utilizamos el flag Nodo->esPalabra para chequear si una clave esta definida o no
 template <typename T>
-bool DiccionarioTitulos<T>::definido(const String &clave)
+bool DiccionarioTitulos<T>::definido(const aed2::String &clave)
 {
   if (this->raiz == NULL) 
       return false;  
@@ -304,7 +345,7 @@ bool DiccionarioTitulos<T>::definido(const String &clave)
 //Obtener 
 //PRE: assert(definido?)
 template <typename T>
-const T& DiccionarioTitulos<T>::obtener(const String &clave)
+const T& DiccionarioTitulos<T>::obtener(const aed2::String &clave)
 {
 		#ifdef DEBUG
 			assert(definido(clave));
@@ -338,7 +379,7 @@ const T& DiccionarioTitulos<T>::obtener(const String &clave)
 // Falta terminar, borrar los nodos que no se usan mas
 // aca simplemente lo busca y  desactiva el flag de significado
 template <typename T>
-void DiccionarioTitulos<T>::borrar(const String &clave)
+void DiccionarioTitulos<T>::borrar(const aed2::String &clave)
 {
     Nodo * NodoActual = this->raiz;
     for (unsigned int i = 0; i < clave.size(); ++i)
@@ -387,7 +428,7 @@ void DiccionarioTitulos<T>::RecorrerClaves(DiccionarioTitulos<T>::Nodo * Nodo, S
 		  {
 		      if (Nodo->hijos[i] != NULL)
 		      {
-		          String actualString = prefijo + Nodo->hijos[i]->caracter;
+		          aed2::String actualString = prefijo + Nodo->hijos[i]->caracter;
 		          RecorrerClaves(Nodo->hijos[i], actualString);
 		      }
 		  }
@@ -445,7 +486,7 @@ bool DiccionarioTitulos<T>::const_Iterador::HayAnterior() const
 }
 
 template<typename T>
-const String& DiccionarioTitulos<T>::const_Iterador::SiguienteClave() const
+const aed2::String& DiccionarioTitulos<T>::const_Iterador::SiguienteClave() const
 {
   #ifdef DEBUG
   	assert(HaySiguiente());
@@ -475,7 +516,7 @@ typename DiccionarioTitulos<T>::const_Elem DiccionarioTitulos<T>::const_Iterador
 }
 
 template<typename T>
-const String& DiccionarioTitulos<T>::const_Iterador::AnteriorClave() const
+const aed2::String& DiccionarioTitulos<T>::const_Iterador::AnteriorClave() const
 {
   #ifdef DEBUG
   	assert( HayAnterior() );
@@ -536,6 +577,4 @@ bool DiccionarioTitulos<T>::const_Iterador::operator == (const typename Dicciona
 {
   return it_claves_ == otro.it_claves_ && it_significados_ == otro.it_significados_;
 }
-
-
 #endif //DICCTITULOS_H_

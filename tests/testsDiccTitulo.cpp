@@ -1,5 +1,5 @@
-// g++ -g tests.cpp -o tests
-// valgrind --leak-check=full ./tests
+// g++ -g testsDiccTitulo.cpp -o tdt
+// valgrind --leak-check=full ./tdt
 
 #include <ostream>
 #include <string>

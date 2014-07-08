@@ -6,10 +6,9 @@ Driver::Driver(const Conj<Cliente>& clientes)
 {
 	_wolfie = Wolfie(clientes);
 }
-/*
+
 Driver::~Driver()
-{
-	//TODO
+{	
 }
 
 void Driver::AgregarTitulo(const NombreTitulo& nombre, Dinero cotizacion, Nat max_acciones)
@@ -34,12 +33,12 @@ void Driver::AgregarPromesaDeVenta(const Cliente& cliente, const NombreTitulo& t
 
 Nat Driver::CantidadDeClientes() const
 {
-	//TODO
+	return _wolfie.CantidadDeClientes();	
 }
 
 Cliente Driver::IesimoCliente(Nat i) const
 {
-	//TODO
+	return _wolfie.IesimoCliente(i);
 }
 
 Nat Driver::CantidadDeTitulos() const
@@ -121,4 +120,3 @@ Dinero Driver::ValorEsperadoParaVender(const Cliente& cliente, const NombreTitul
 {
 	//TODO
 }
-*/
