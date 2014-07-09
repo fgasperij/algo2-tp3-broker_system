@@ -6,42 +6,62 @@
 #include "DiccionarioTitulos.h"
 #include "DiccionarioClientes.h"
 
-using namespace std;
+using namespace aed2;
 
 class Wolfie 
 {
-	struct infoTituloCliente;
-	struct infoCliente;
+	// struct infoTituloCliente;
+	// struct infoCliente;
+	// struct infoTitulo;
 
 	public:
 		Wolfie();
-		Wolfie(const aed2::Conj<aed2::Cliente>& clientes);
+		Wolfie(const Conj<Cliente>& clientes);
 		~Wolfie();
-		aed2::Nat CantidadDeClientes() const;
-		aed2::Cliente IesimoCliente(aed2::Nat i) const;
+		Nat CantidadDeClientes() const;
+		Cliente IesimoCliente(Nat i) const;
+
+		void AgregarTitulo(const NombreTitulo& nombre, Dinero cotizacion, Nat max_acciones);
+		Nat CantidadDeTitulos() const;
+		// PRE: 0 <= i < CantidadDeTitulos()
+		NombreTitulo IesimoTitulo(Nat i) const;
+		
 	private:
 		struct promesa {
 			bool pendiente;
-			aed2::Nat umbral;
-			aed2::Nat cantidad;
+			Nat umbral;
+			Nat cantidad;
 		};
 		struct promesaCompraYVenta {
 			promesa compra;
 			promesa venta;
 		};
 		struct infoTituloCliente {
-			aed2::Nat cantidadDeAcciones;
+			Nat cantidadDeAcciones;
 			promesaCompraYVenta promesas;
 		};
 		struct infoCliente {
 			infoCliente() : cantidadTotalDeAcciones(0), titulos(DiccionarioTitulos<infoTituloCliente>()) {};
 			
 			DiccionarioTitulos<infoTituloCliente> titulos;
-			aed2::Nat cantidadTotalDeAcciones;
+			Nat cantidadTotalDeAcciones;
+		};
+		struct infoTitulo {
+			infoTitulo() : cantidadMaximaDeAcciones(0), cantidadDeAccionesDisponibles(0),
+				cotizacion(0), enAlza(true) {};
+
+			infoTitulo(Nat maxAcciones, Nat cotizacion) : cantidadMaximaDeAcciones(maxAcciones), 
+				cotizacion(cotizacion), cantidadDeAccionesDisponibles(maxAcciones), enAlza(true) {};
+
+			Nat cantidadMaximaDeAcciones;
+			Nat cantidadDeAccionesDisponibles;
+			Nat cotizacion;
+			bool enAlza;
 		};
 		
-		aed2::Nat _cantidadDeClientes;
+		Nat _cantidadDeClientes;
 		DiccionarioClientes<infoCliente> *_clientes;
+		DiccionarioTitulos<infoTitulo> *_titulos;
 };
 
 #endif // WOLFIE_H_

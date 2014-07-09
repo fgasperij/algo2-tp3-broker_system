@@ -30,6 +30,7 @@ class DiccionarioClientes
 		};
 		// @pre el cliente está definido
 		resultadoBusqueda BuscarCliente(const aed2::Nat cliente) const;
+		
 		aed2::Nat *_clientes;
 		T *_infoClientes;
 
@@ -40,6 +41,7 @@ class DiccionarioClientes
 template <typename T>
 DiccionarioClientes<T>::DiccionarioClientes(aed2::Nat cardinalCliente)
 {
+	// cout << "Called: DiccionarioClientes(int)" << endl;
 	_cantidad = 0;
 	_capacidad = cardinalCliente;
 	_clientes = new aed2::Nat[cardinalCliente];
@@ -49,6 +51,7 @@ DiccionarioClientes<T>::DiccionarioClientes(aed2::Nat cardinalCliente)
 template <typename T>
 DiccionarioClientes<T>::~DiccionarioClientes() 
 {
+	// cout << "Called: ~DiccionarioClientes" << endl;
 	delete [] _clientes;
 	delete [] _infoClientes;
 }

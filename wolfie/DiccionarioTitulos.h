@@ -172,9 +172,6 @@ private:
   void RecorrerClaves(DiccionarioTitulos<T>::Nodo* n, String prefijo);
   // Borrar nodos
   void destruir(DiccionarioTitulos<T>::Nodo* n);
-
-  void copiarHijos(DiccionarioTitulos<T>::Nodo *fuente, DiccionarioTitulos<T>::Nodo *destino);
-
 };
 
 /*---------------------------------------------------------------

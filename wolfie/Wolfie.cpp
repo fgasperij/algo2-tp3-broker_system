@@ -1,33 +1,68 @@
 #include "Wolfie.h"
 
-using namespace std;
+using namespace aed2;
 
 Wolfie::Wolfie(){}
 
-Wolfie::~Wolfie(){}
-
-Wolfie::Wolfie(const aed2::Conj<aed2::Cliente>& clientes)
+Wolfie::~Wolfie()
 {
-	_cantidadDeClientes = clientes.Cardinal();
-	_clientes = new DiccionarioClientes<infoCliente>(_cantidadDeClientes);
-	
-	infoCliente infoClienteInicial;
-	infoClienteInicial.titulos = DiccionarioTitulos<infoTituloCliente>();
-	infoClienteInicial.cantidadTotalDeAcciones = 0;
-		
-	aed2::Conj<aed2::Cliente>::const_Iterador itClientes = clientes.CrearIt();
-	while (itClientes.HaySiguiente()) {
-		_clientes->Definir(itClientes.Siguiente(), infoClienteInicial);
-		itClientes.Avanzar();
-	}
+	// std::cout << "Called: ~Wolfie" << std::endl;
+	delete _clientes;
+	delete _titulos;
 }
 
-aed2::Nat Wolfie::CantidadDeClientes() const
+Wolfie::Wolfie(const Conj<Cliente>& clientes)
+{
+	_cantidadDeClientes = clientes.Cardinal();
+	_clientes = new DiccionarioClientes<infoCliente>(_cantidadDeClientes);	
+	Conj<Cliente>::const_Iterador itClientes = clientes.CrearIt();
+	while (itClientes.HaySiguiente()) {
+		_clientes->Definir(itClientes.Siguiente(), infoCliente());
+		itClientes.Avanzar();
+	}
+
+	_titulos = new DiccionarioTitulos<infoTitulo>();
+}
+
+Nat Wolfie::CantidadDeClientes() const
 {
 	return _cantidadDeClientes;
 }
 
-aed2::Cliente Wolfie::IesimoCliente(aed2::Nat i) const
+Cliente Wolfie::IesimoCliente(Nat i) const
 {
 	return _clientes->Iesimo(i);
+}
+
+void Wolfie::AgregarTitulo(const NombreTitulo& nombre, Dinero cotizacion, Nat max_acciones)
+{
+	infoTitulo titulo(max_acciones, cotizacion);
+	_titulos->definir(nombre, titulo);
+}
+
+Nat Wolfie::CantidadDeTitulos() const
+{
+	int cantidadDeTitulos = 0;
+	DiccionarioTitulos<infoTitulo>::const_Iterador itTitulos = _titulos->CrearIt();
+
+	while(itTitulos.HaySiguiente()) {
+		cantidadDeTitulos++;
+		itTitulos.Avanzar();
+	}
+
+	return cantidadDeTitulos;
+}
+
+// PRE: 0 <= i < CantidadDeTitulos()
+NombreTitulo Wolfie::IesimoTitulo(Nat i) const
+{
+	int iesimo = 1;
+	String nombreIesimo;
+	DiccionarioTitulos<infoTitulo>::const_Iterador itTitulos = _titulos->CrearIt();
+
+	while(itTitulos.HaySiguiente()) {
+		if (iesimo == i) return itTitulos.SiguienteClave();
+		iesimo++;
+		itTitulos.Avanzar();
+	}
 }

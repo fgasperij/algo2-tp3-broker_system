@@ -141,8 +141,8 @@ void test_wolfie_setup()
 int main(int argc, char **argv)
 {
 	RUN_TEST(test_driver_y_wolfie_conectados);
-	RUN_TEST(test_wolfie_cantidadDeClientes);
-	RUN_TEST(test_wolfie_iesimoCliente);
+	// RUN_TEST(test_wolfie_cantidadDeClientes);
+	// RUN_TEST(test_wolfie_iesimoCliente);
 	// RUN_TEST(test_wolfie_setup);
 	
 	return 0;

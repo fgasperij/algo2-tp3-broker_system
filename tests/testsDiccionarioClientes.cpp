@@ -93,6 +93,14 @@ void test_obtener_entre_varios_clientes()
 	ASSERT_EQ("Lolita5", dc.Obtener(19));
 }
 
+void test_usar_operador_new()
+{
+	DiccionarioClientes<string> *dc = new DiccionarioClientes<string>(5);
+	string nombre = "Lola";
+	dc->Definir(1, nombre);
+	ASSERT_EQ(true, dc->Definido(1));
+	delete dc;
+}
 
 int main() 
 {
@@ -103,6 +111,7 @@ int main()
 	RUN_TEST(test_definir_dos_veces_la_misma_clave);
 	RUN_TEST(test_obtener_un_cliente);
 	RUN_TEST(test_obtener_entre_varios_clientes);
+	RUN_TEST(test_usar_operador_new);
 	
 	return 0;
 }
