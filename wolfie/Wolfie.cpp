@@ -66,3 +66,20 @@ NombreTitulo Wolfie::IesimoTitulo(Nat i) const
 		itTitulos.Avanzar();
 	}
 }
+
+Nat Wolfie::MaxAccionesDe(const NombreTitulo& nombre_titulo) const
+{
+	return _titulos->obtener(nombre_titulo).cantidadMaximaDeAcciones;
+}
+
+Dinero Wolfie::CotizacionDe(const NombreTitulo& nombre_titulo) const
+{
+	return _titulos->obtener(nombre_titulo).cotizacion;	
+}
+
+bool Wolfie::EnAlza(const NombreTitulo& nombre_titulo) const
+{
+	return _titulos->obtener(nombre_titulo).enAlza;		
+}
+
+

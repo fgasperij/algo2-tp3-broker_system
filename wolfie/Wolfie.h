@@ -25,7 +25,13 @@ class Wolfie
 		Nat CantidadDeTitulos() const;
 		// PRE: 0 <= i < CantidadDeTitulos()
 		NombreTitulo IesimoTitulo(Nat i) const;
-		
+		// PRE: nombre_titulo \in Titulos()
+		Nat MaxAccionesDe(const NombreTitulo& nombre_titulo) const;
+		// PRE: nombre_titulo \in Titulos()
+		Dinero CotizacionDe(const NombreTitulo& nombre_titulo) const;
+		// PRE: nombre_titulo \in Titulos()
+		bool EnAlza(const NombreTitulo& nombre_titulo) const;
+
 	private:
 		struct promesa {
 			bool pendiente;
