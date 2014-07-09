@@ -82,4 +82,65 @@ bool Wolfie::EnAlza(const NombreTitulo& nombre_titulo) const
 	return _titulos->obtener(nombre_titulo).enAlza;		
 }
 
+// PRE: no PrometeComprar(cliente)
+void Wolfie::AgregarPromesaDeCompra(const Cliente& cliente, const NombreTitulo& titulo, Dinero limite, Nat cantidad)
+{
+	infoCliente infoClienteActual(_clientes->Obtener(cliente));	
+
+	if (infoClienteActual.titulos.definido(titulo)) {
+		infoTituloCliente infoTituloClienteActual(infoClienteActual.titulos.obtener(titulo));
+		infoTituloClienteActual.promesas.compra = promesa(true, limite, cantidad);
+		
+		infoClienteActual.titulos.definir(titulo, infoTituloClienteActual);
+		_clientes->Definir(cliente, infoClienteActual);
+	} else {
+		infoTituloCliente infoTituloClienteActual;
+		infoTituloClienteActual.promesas.compra = promesa(true, limite, cantidad);
+		
+		infoClienteActual.titulos.definir(titulo, infoTituloClienteActual);
+		_clientes->Definir(cliente, infoClienteActual);
+	}
+}
+
+bool Wolfie::PrometeComprar(const Cliente& cliente, const NombreTitulo& titulo) const
+{
+	infoCliente infoClienteActual = _clientes->Obtener(cliente);
+	
+	if (!infoClienteActual.titulos.definido(titulo)) return false;
+	
+	infoTituloCliente infoTituloClienteActual = infoClienteActual.titulos.obtener(titulo);
+
+	return infoTituloClienteActual.promesas.compra.pendiente;
+}
+
+// PRE: no PrometeVender(cliente) y cantidad < AccionesPorCliente(cliente, titulo)
+void Wolfie::AgregarPromesaDeVenta(const Cliente& cliente, const NombreTitulo& titulo, Dinero limite, Nat cantidad)
+{
+	infoCliente infoClienteActual(_clientes->Obtener(cliente));	
+
+	if (infoClienteActual.titulos.definido(titulo)) {
+		infoTituloCliente infoTituloClienteActual(infoClienteActual.titulos.obtener(titulo));
+		infoTituloClienteActual.promesas.venta = promesa(true, limite, cantidad);
+		
+		infoClienteActual.titulos.definir(titulo, infoTituloClienteActual);
+		_clientes->Definir(cliente, infoClienteActual);
+	} else {
+		infoTituloCliente infoTituloClienteActual;
+		infoTituloClienteActual.promesas.venta = promesa(true, limite, cantidad);
+		
+		infoClienteActual.titulos.definir(titulo, infoTituloClienteActual);
+		_clientes->Definir(cliente, infoClienteActual);
+	}	
+}
+
+bool Wolfie::PrometeVender(const Cliente& cliente, const NombreTitulo& titulo) const
+{
+	infoCliente infoClienteActual = _clientes->Obtener(cliente);
+	
+	if (!infoClienteActual.titulos.definido(titulo)) return false;
+	
+	infoTituloCliente infoTituloClienteActual = infoClienteActual.titulos.obtener(titulo);
+
+	return infoTituloClienteActual.promesas.venta.pendiente;
+}
 

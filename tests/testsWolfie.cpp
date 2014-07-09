@@ -103,6 +103,61 @@ void test_max_acciones_de_cotizacion_en_alza()
 	ASSERT_EQ(true, w.EnAlza(nombre3));
 }
 
+void test_agregar_promesa_de_compra()
+{
+	Conj<Cliente> clientes;
+	clientes.Agregar(3);
+	clientes.Agregar(5);
+
+	Wolfie w(clientes);
+
+	String nombre1("Lola1");
+	String nombre2("Lola2");
+	String nombre3("Lola3");
+	// nombre cot maxAcciones
+	w.AgregarTitulo(nombre1, 32, 2);		
+	w.AgregarTitulo(nombre2, 145, 14);		
+	w.AgregarTitulo(nombre3, 175, 90);
+
+	w.AgregarPromesaDeCompra(3, nombre1, 10, 20);
+	ASSERT_EQ(true, w.PrometeComprar(3, nombre1));
+	ASSERT_EQ(false, w.PrometeComprar(3, nombre2));
+	ASSERT_EQ(false, w.PrometeComprar(5, nombre1));
+	ASSERT_EQ(false, w.PrometeComprar(5, nombre2));
+
+	w.AgregarPromesaDeCompra(5, nombre3, 10, 20);
+	ASSERT_EQ(true, w.PrometeComprar(5, nombre3));
+	ASSERT_EQ(false, w.PrometeComprar(5, nombre2));
+	ASSERT_EQ(false, w.PrometeComprar(5, nombre1));
+}
+
+void test_agregar_promesa_de_venta()
+{
+	Conj<Cliente> clientes;
+	clientes.Agregar(3);
+	clientes.Agregar(5);
+
+	Wolfie w(clientes);
+
+	String nombre1("Lola1");
+	String nombre2("Lola2");
+	String nombre3("Lola3");
+	// nombre cot maxAcciones
+	w.AgregarTitulo(nombre1, 32, 2);		
+	w.AgregarTitulo(nombre2, 145, 14);		
+	w.AgregarTitulo(nombre3, 175, 90);
+
+	w.AgregarPromesaDeVenta(3, nombre1, 10, 20);
+	ASSERT_EQ(true, w.PrometeVender(3, nombre1));
+	ASSERT_EQ(false, w.PrometeVender(3, nombre2));
+	ASSERT_EQ(false, w.PrometeVender(5, nombre1));
+	ASSERT_EQ(false, w.PrometeVender(5, nombre2));
+
+	w.AgregarPromesaDeVenta(5, nombre3, 10, 20);
+	ASSERT_EQ(true, w.PrometeVender(5, nombre3));
+	ASSERT_EQ(false, w.PrometeVender(5, nombre2));
+	ASSERT_EQ(false, w.PrometeVender(5, nombre1));
+}
 int main() 
 {
 	RUN_TEST(test_crear_wolfie_sin_perder_memoria);
@@ -110,6 +165,8 @@ int main()
 	RUN_TEST(test_cantidad_de_titulos);
 	RUN_TEST(test_iesimo_titulo);
 	RUN_TEST(test_max_acciones_de_cotizacion_en_alza);
+	RUN_TEST(test_agregar_promesa_de_compra);
+	RUN_TEST(test_agregar_promesa_de_venta);
 
 	return 0;
 }
