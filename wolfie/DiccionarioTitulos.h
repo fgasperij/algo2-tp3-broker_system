@@ -9,7 +9,7 @@
  * Estado:    Funcionabilidad Basica + Iterador --> OK
  *							Hay que testear mas
  *	
- * Ultima modificacion: 25/6/2014 - 20:29 pm
+ * Ultima modificacion: 9/7/2014 - 12:24 am
  *
  * Revision:  
  *
@@ -47,8 +47,7 @@ class DiccionarioTitulos
   ~DiccionarioTitulos();
   
   /// Operacion de asignacion
-  template <typename U>
-  DiccionarioTitulos<T>& operator=(const DiccionarioTitulos<U>& otra);
+  DiccionarioTitulos<T>& operator=(const DiccionarioTitulos<T>& otra);
 
   /// Operaciones básicas
   void definir(const String &clave, const T& significado);
@@ -206,35 +205,6 @@ DiccionarioTitulos<T>::DiccionarioTitulos()
   this->raiz->esPalabra = false;
 }
 
-template <typename T>
-template <typename U>
-DiccionarioTitulos<T>& DiccionarioTitulos<T>::operator=(const DiccionarioTitulos<U>& otra)
-{
-  if( this == &otra ) return *this;
-    
-  // borro lo actual
-  destruir(this->raiz);
-  // construir el mismo que el que recibimos  
-  this->raiz = new DiccionarioTitulos<T>::Nodo(otra.raiz->significado, otra.raiz->caracter, otra.raiz->esPalabra);
-  copiarHijos(otra.raiz, this->raiz);
-
-  return *this;
-}
-
-template <typename T>
-void copiarHijos(const typename DiccionarioTitulos<T>::Nodo *fuente, typename DiccionarioTitulos<T>::Nodo *destino) 
-{
-  for(unsigned i = 0; i < LETRAS; ++i) {
-    if (fuente->hijos[i] == NULL) {
-      destino->hijos[i] == NULL;
-    } else {
-      typename DiccionarioTitulos<T>::Nodo *nuevoNodo = new typename DiccionarioTitulos<T>::Nodo(fuente->hijos[i]->significado, fuente->hijos[i]->caracter, fuente->hijos[i]->esPalabra);
-      copiarHijos(fuente->hijos[i], nuevoNodo);
-    }
-  }   
-}
-
-
 
 /*
  * Destructor DiccionarioTitulos
@@ -264,6 +234,50 @@ void DiccionarioTitulos<T>::destruir(DiccionarioTitulos<T>::Nodo* n)
     delete n;
   }
 }
+
+/* Operador = 
+ * Copia 2 diccionarios usando el iterador del source
+ * Previamente elimino toda la informacion que contiene
+ * el diccionario target
+ */
+
+template<typename T>
+DiccionarioTitulos<T>& DiccionarioTitulos<T>::operator = (const DiccionarioTitulos<T>& otro)
+{
+	Nodo* n = this->raiz;
+	// Limpio el diccionario actual, solo dejo la raiz
+	// con todos sus punteros apuntando a NULL
+	for( int i= 0; i< LETRAS; ++i)
+  {
+  	if(n-> hijos[i] != NULL)
+  	{
+  		// Mando a destruir todo lo que tenga recursivamente para abajo
+  		destruir((DiccionarioTitulos<T>::Nodo*)n->hijos[i]);
+  		// Luego redefino a NULL el puntero 
+  		n->hijos[i] = NULL;
+  	}
+  } 
+
+	// Limpiamos las listas que guardan la info de los iteradores
+  while( !(this->claves_.EsVacia()) ) {
+    claves_.Fin();
+    significados_.Fin();
+  }
+
+	// Creo un iterador del diccionario que me estan pasando
+	DiccionarioTitulos<T>::const_Iterador it_otro = otro.CrearIt();
+  // Lo recorro y voy definiendo
+  
+	while(it_otro.HaySiguiente())
+  {
+  	this->definir(it_otro.SiguienteClave(),it_otro.SiguienteSignificado());
+  	it_otro.Avanzar();
+  }
+  
+
+  return *this;
+}
+
 
 /*
  * Definir

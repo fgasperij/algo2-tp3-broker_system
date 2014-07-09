@@ -467,6 +467,189 @@ void tests_it_redef_shakeit() {
 	ASSERT_EQ(i, 3);
 }
 
+void test_operador_igual() {
+	
+	DiccionarioTitulos<int> t;
+	
+	definir_assert(t,"JoseFisarasa",30);
+	definir_assert(t,"Jose",40);
+	definir_assert(t,"JoseLus",20);
+	definir_assert(t,"JoseFina",30);
+	definir_assert(t,"JoseLuis",50);
+	definir_assert(t,"Joses",70);
+	definir_assert(t,"Joseus",990);
+	// Redefino para molestar un toque
+	definir_assert(t,"JoseFisarasa",1);
+	definir_assert(t,"Jose",2);
+	definir_assert(t,"JoseLus",3);
+	definir_assert(t,"JoseFina",4);
+	definir_assert(t,"JoseLuis",5);
+	definir_assert(t,"Joses",6);
+	definir_assert(t,"Joseus",7);
+	
+	//Creo una copia del diccionario
+	DiccionarioTitulos<int> t_copia;
+	t_copia = t;
+	
+	//Crear un Iterador para cada diccionario y los comparo
+	DiccionarioTitulos<int>::const_Iterador it = t.CrearIt();
+	DiccionarioTitulos<int>::const_Iterador it_copia = t_copia.CrearIt();
+	
+	int i=0;
+	#ifdef DEBUG
+		cout << endl;
+	#endif
+	while(it.HaySiguiente() && it_copia.HaySiguiente())
+	{	
+		i++;
+		#ifdef DEBUG
+			cout << "	" << it.SiguienteClave() << " - " << it_copia.SiguienteClave() << endl;
+			cout << "			" << it.SiguienteSignificado() << " - " << it_copia.SiguienteSignificado() << endl;
+		#endif	
+		ASSERT_EQ(it.SiguienteClave(), it_copia.SiguienteClave());
+		ASSERT_EQ(it.SiguienteSignificado(),it_copia.SiguienteSignificado());
+		it.Avanzar(); it_copia.Avanzar();
+	}
+	ASSERT_EQ((int)it_copia.HaySiguiente(), 0);
+	ASSERT_EQ((int)it.HaySiguiente(), 0);
+	ASSERT_EQ((int)it_copia.HayAnterior(), 1);
+	ASSERT_EQ((int)it.HayAnterior(), 1);
+	ASSERT_EQ(i, 7);
+}
+
+
+void test_operador_igual_agrego_cosas() {
+	
+	DiccionarioTitulos<int> t;
+	
+	definir_assert(t,"JoseFisarasa",30);
+	definir_assert(t,"Jose",40);
+	definir_assert(t,"JoseLus",20);
+	definir_assert(t,"JoseFina",30);
+	definir_assert(t,"JoseLuis",50);
+	definir_assert(t,"Joses",70);
+	definir_assert(t,"Joseus",990);
+	// Redefino para molestar un toque
+	definir_assert(t,"JoseFisarasa",1);
+	definir_assert(t,"Jose",2);
+	definir_assert(t,"JoseLus",3);
+	definir_assert(t,"JoseFina",4);
+	definir_assert(t,"JoseLuis",5);
+	definir_assert(t,"Joses",6);
+	definir_assert(t,"Joseus",7);
+	
+	//Creo una copia del diccionario
+	DiccionarioTitulos<int> t_copia;
+	t_copia = t;
+	
+	//Crear un Iterador para cada diccionario y los comparo
+	DiccionarioTitulos<int>::const_Iterador it = t.CrearIt();
+	DiccionarioTitulos<int>::const_Iterador it_copia = t_copia.CrearIt();
+	
+	int i=0;
+	#ifdef DEBUG
+		cout << endl;
+	#endif
+	while(it.HaySiguiente() && it_copia.HaySiguiente())
+	{	
+		i++;
+		#ifdef DEBUG
+			cout << "	" << it.SiguienteClave() << " - " << it_copia.SiguienteClave() << endl;
+			cout << "			" << it.SiguienteSignificado() << " - " << it_copia.SiguienteSignificado() << endl;
+		#endif	
+		ASSERT_EQ(it.SiguienteClave(), it_copia.SiguienteClave());
+		ASSERT_EQ(it.SiguienteSignificado(),it_copia.SiguienteSignificado());
+		it.Avanzar(); it_copia.Avanzar();
+	}
+	ASSERT_EQ((int)it_copia.HaySiguiente(), 0);
+	ASSERT_EQ((int)it.HaySiguiente(), 0);
+	ASSERT_EQ((int)it_copia.HayAnterior(), 1);
+	ASSERT_EQ((int)it.HayAnterior(), 1);
+	ASSERT_EQ(i, 7);
+	
+	//ahora agrego un par de cositas al diccionario nuevo
+	definir_assert(t_copia,"Figaza",10);
+	definir_assert(t_copia,"Sarasa",2);
+	DiccionarioTitulos<int>::const_Iterador it_copia_otro = t_copia.CrearIt();
+	i=0;
+	#ifdef DEBUG
+		cout << endl;
+	#endif
+	while(it_copia_otro.HaySiguiente())
+	{	
+		i++;
+		#ifdef DEBUG
+			cout << "	" << it_copia_otro.SiguienteClave() << " - " << it_copia_otro.SiguienteSignificado() << endl;
+		#endif	
+		it_copia_otro.Avanzar();
+	}
+	ASSERT_EQ((int)it_copia_otro.HaySiguiente(), 0);
+	ASSERT_EQ((int)it_copia_otro.HayAnterior(), 1);
+	ASSERT_EQ(i, 9);
+	
+}
+
+
+void test_operador_igual_pisar_dicc_lleno() {
+	
+	DiccionarioTitulos<int> t;
+	
+	definir_assert(t,"JoseFisarasa",30);
+	definir_assert(t,"Jose",40);
+	definir_assert(t,"JoseLus",20);
+	definir_assert(t,"JoseFina",30);
+	definir_assert(t,"JoseLuis",50);
+	definir_assert(t,"Joses",70);
+	definir_assert(t,"Joseus",990);
+	
+	//Creo una copia del diccionario
+	DiccionarioTitulos<int> t_copia;
+	
+	definir_assert(t_copia,"Brasil",21);
+	definir_assert(t_copia,"decime",32);
+	definir_assert(t_copia,"que",321);
+	definir_assert(t_copia,"se",32);
+	definir_assert(t_copia,"siente",54);
+	definir_assert(t_copia,"tener",54);
+	definir_assert(t_copia,"en",23);
+	definir_assert(t_copia,"casa",263);
+	definir_assert(t_copia,"a",73);
+	definir_assert(t_copia,"tu",83);
+	definir_assert(t_copia,"papa",76);
+	definir_assert(t_copia,"!!!",12);
+	
+	t_copia = t;
+	#ifdef DEBUG
+		cout << endl;
+		t_copia.claves();
+	#endif
+	
+	//Crear un Iterador para cada diccionario y los comparo
+	DiccionarioTitulos<int>::const_Iterador it = t.CrearIt();
+	DiccionarioTitulos<int>::const_Iterador it_copia = t_copia.CrearIt();
+	
+	int i=0;
+	#ifdef DEBUG
+		cout << endl;
+	#endif
+	while(it.HaySiguiente() && it_copia.HaySiguiente())
+	{	
+		i++;
+		#ifdef DEBUG
+			cout << "	" << it.SiguienteClave() << " - " << it_copia.SiguienteClave() << endl;
+			cout << "			" << it.SiguienteSignificado() << " - " << it_copia.SiguienteSignificado() << endl;
+		#endif	
+		ASSERT_EQ(it.SiguienteClave(), it_copia.SiguienteClave());
+		ASSERT_EQ(it.SiguienteSignificado(),it_copia.SiguienteSignificado());
+		it.Avanzar(); it_copia.Avanzar();
+	}
+	ASSERT_EQ((int)it_copia.HaySiguiente(), 0);
+	ASSERT_EQ((int)it.HaySiguiente(), 0);
+	ASSERT_EQ((int)it_copia.HayAnterior(), 1);
+	ASSERT_EQ((int)it.HayAnterior(), 1);
+	ASSERT_EQ(i, 7);
+}
+
 int main() {
   RUN_TEST(test_crear_dicc_1_elem);
   RUN_TEST(test_crear_dicc_0_elem);
@@ -482,6 +665,9 @@ int main() {
   RUN_TEST(test_it_redefinirSignificados);
   RUN_TEST(test_it_idaVuelta);
   RUN_TEST(tests_it_redef_shakeit);
+  RUN_TEST(test_operador_igual);
+  RUN_TEST(test_operador_igual_agrego_cosas);
+  RUN_TEST(test_operador_igual_pisar_dicc_lleno);
   return 0;
 }
 
