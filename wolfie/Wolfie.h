@@ -24,6 +24,12 @@ class Wolfie
 		// PRE: nombre \in Titulos()
 		void ActualizarCotizacion(const NombreTitulo& nombre, Nat cotizacion);
 
+		// PRE: no PrometeComprar(cliente)
+		void AgregarPromesaDeCompra(const Cliente& cliente, const NombreTitulo& titulo, Dinero limite, Nat cantidad);
+
+		// PRE: no PrometeVender(cliente) y cantidad < AccionesPorCliente(cliente, titulo)
+		void AgregarPromesaDeVenta(const Cliente& cliente, const NombreTitulo& titulo, Dinero limite, Nat cantidad);
+
 		Nat CantidadDeTitulos() const;
 		// PRE: 0 <= i < CantidadDeTitulos()
 		NombreTitulo IesimoTitulo(Nat i) const;
@@ -34,12 +40,11 @@ class Wolfie
 		Dinero CotizacionDe(const NombreTitulo& nombre_titulo) const;
 		// PRE: nombre_titulo \in Titulos()
 		bool EnAlza(const NombreTitulo& nombre_titulo) const;
-
 		// PRE: c \in Clientes()
 		Nat AccionesTotalesDe(const Cliente& cliente) const;
+		// PRE: c \in Clientes(), nombre_titulo \in Titulos()
+		Nat AccionesPorCliente(const Cliente& cliente, const NombreTitulo& nombre_titulo) const;
 
-		// PRE: no PrometeComprar(cliente)
-		void AgregarPromesaDeCompra(const Cliente& cliente, const NombreTitulo& titulo, Dinero limite, Nat cantidad);
 		// PRE: c \in Clientes()
 		bool PrometeComprar(const Cliente& cliente, const NombreTitulo& titulo) const;
 		// PRE: c \in Clientes(), PrometeComprar(c, titulo)
@@ -47,8 +52,6 @@ class Wolfie
 		// PRE: c \in Clientes(), PrometeComprar(c, titulo)
 		Dinero ValorEsperadoParaComprar(const Cliente& cliente, const NombreTitulo& titulo) const;
 
-		// PRE: no PrometeVender(cliente) y cantidad < AccionesPorCliente(cliente, titulo)
-		void AgregarPromesaDeVenta(const Cliente& cliente, const NombreTitulo& titulo, Dinero limite, Nat cantidad);
 		// PRE: c \in Clientes()
 		bool PrometeVender(const Cliente& cliente, const NombreTitulo& titulo) const;
 		// PRE: c \in Clientes(), PrometeVender(c, titulo)

@@ -56,16 +56,12 @@ class Driver
 		// PRE: c \in Clientes()
 		bool PrometeComprar(const Cliente& cliente, const NombreTitulo& titulo) const;
 		// PRE: c \in Clientes(), PrometeComprar(c, titulo)
-		const NombreTitulo& TituloAComprar(const Cliente& cliente, const NombreTitulo& titulo) const;
-		// PRE: c \in Clientes(), PrometeComprar(c, titulo)
 		Nat CantidadAComprar(const Cliente& cliente, const NombreTitulo& titulo) const;
 		// PRE: c \in Clientes(), PrometeComprar(c, titulo)
 		Dinero ValorEsperadoParaComprar(const Cliente& cliente, const NombreTitulo& titulo) const;
 
 		// PRE: c \in Clientes()
 		bool PrometeVender(const Cliente& cliente, const NombreTitulo& titulo) const;
-		// PRE: c \in Clientes(), PrometeComprar(c, titulo)
-		const NombreTitulo& TituloAVender(const Cliente& cliente, const NombreTitulo& titulo) const;
 		// PRE: c \in Clientes(), PrometeVender(c, titulo)
 		Nat CantidadAVender(const Cliente& cliente, const NombreTitulo& titulo) const;
 		// PRE: c \in Clientes(), PrometeVender(c, titulo)

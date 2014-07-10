@@ -6,7 +6,6 @@ Wolfie::Wolfie(){}
 
 Wolfie::~Wolfie()
 {
-	// std::cout << "Called: ~Wolfie" << std::endl;
 	delete _clientes;
 	delete _titulos;
 }
@@ -305,4 +304,17 @@ void Wolfie::Merge(clienteTotalAcciones *A, Nat tamanioA,
 			iC++;
 		}
 	}
+}
+
+// PRE: nombre_titulo \in Titulos()
+Nat Wolfie::AccionesDisponibles(const NombreTitulo& nombre_titulo) const
+{
+	return _titulos->obtener(nombre_titulo).cantidadDeAccionesDisponibles;
+}
+
+// PRE: c \in Clientes(), nombre_titulo \in Titulos()
+Nat Wolfie::AccionesPorCliente(const Cliente& cliente, const NombreTitulo& nombre_titulo) const
+{
+	infoCliente clienteActual = _clientes->Obtener(cliente);
+	return clienteActual.titulos.obtener(nombre_titulo).cantidadDeAcciones;
 }
