@@ -158,6 +158,34 @@ void test_agregar_promesa_de_venta()
 	ASSERT_EQ(false, w.PrometeVender(5, nombre2));
 	ASSERT_EQ(false, w.PrometeVender(5, nombre1));
 }
+
+void tests_cantidad_y_valor_esperado()
+{
+	Conj<Cliente> clientes;
+	clientes.Agregar(3);
+	clientes.Agregar(5);
+	clientes.Agregar(9);
+
+	Wolfie w(clientes);
+
+	String nombre1("YPF");
+	String nombre2("93hkj97}}++");
+	String nombre3("kjhkj383737{'¿");
+	// nombre cot maxAcciones
+	w.AgregarTitulo(nombre1, 32, 2);		
+	w.AgregarTitulo(nombre2, 145, 14);		
+	w.AgregarTitulo(nombre3, 175, 90);
+
+	// cliente titulo umbral cantidad
+	w.AgregarPromesaDeVenta(3, nombre1, 10, 20);
+	ASSERT_EQ(10, w.ValorEsperadoParaVender(3, nombre1));
+	ASSERT_EQ(20, w.CantidadAVender(3, nombre1));
+
+	w.AgregarPromesaDeVenta(5, nombre3, 34, 45);
+	ASSERT_EQ(34, w.ValorEsperadoParaVender(5, nombre3));
+	ASSERT_EQ(45, w.CantidadAVender(5, nombre3));
+}
+
 int main() 
 {
 	RUN_TEST(test_crear_wolfie_sin_perder_memoria);
@@ -167,6 +195,7 @@ int main()
 	RUN_TEST(test_max_acciones_de_cotizacion_en_alza);
 	RUN_TEST(test_agregar_promesa_de_compra);
 	RUN_TEST(test_agregar_promesa_de_venta);
+	RUN_TEST(tests_cantidad_y_valor_esperado);
 
 	return 0;
 }

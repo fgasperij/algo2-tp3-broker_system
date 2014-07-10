@@ -113,6 +113,24 @@ bool Wolfie::PrometeComprar(const Cliente& cliente, const NombreTitulo& titulo) 
 	return infoTituloClienteActual.promesas.compra.pendiente;
 }
 
+// PRE: c \in Clientes(), PrometeComprar(c, titulo)
+Nat Wolfie::CantidadAComprar(const Cliente& cliente, const NombreTitulo& titulo) const
+{
+	infoCliente infoClienteActual = _clientes->Obtener(cliente);
+	infoTituloCliente infoTituloClienteActual = infoClienteActual.titulos.obtener(titulo);
+
+	return infoTituloClienteActual.promesas.compra.cantidad;
+}
+
+// PRE: c \in Clientes(), PrometeComprar(c, titulo)
+Dinero Wolfie::ValorEsperadoParaComprar(const Cliente& cliente, const NombreTitulo& titulo) const
+{
+	infoCliente infoClienteActual = _clientes->Obtener(cliente);
+	infoTituloCliente infoTituloClienteActual = infoClienteActual.titulos.obtener(titulo);
+
+	return infoTituloClienteActual.promesas.compra.umbral;
+}
+
 // PRE: no PrometeVender(cliente) y cantidad < AccionesPorCliente(cliente, titulo)
 void Wolfie::AgregarPromesaDeVenta(const Cliente& cliente, const NombreTitulo& titulo, Dinero limite, Nat cantidad)
 {
@@ -144,3 +162,44 @@ bool Wolfie::PrometeVender(const Cliente& cliente, const NombreTitulo& titulo) c
 	return infoTituloClienteActual.promesas.venta.pendiente;
 }
 
+// PRE: c \in Clientes(), PrometeVender(c, titulo)
+Nat Wolfie::CantidadAVender(const Cliente& cliente, const NombreTitulo& titulo) const
+{
+	infoCliente infoClienteActual = _clientes->Obtener(cliente);
+	infoTituloCliente infoTituloClienteActual = infoClienteActual.titulos.obtener(titulo);
+
+	return infoTituloClienteActual.promesas.venta.cantidad;
+}
+// PRE: c \in Clientes(), PrometeVender(c, titulo)
+Dinero Wolfie::ValorEsperadoParaVender(const Cliente& cliente, const NombreTitulo& titulo) const
+{
+	infoCliente infoClienteActual = _clientes->Obtener(cliente);
+	infoTituloCliente infoTituloClienteActual = infoClienteActual.titulos.obtener(titulo);
+
+	return infoTituloClienteActual.promesas.venta.umbral;
+}
+
+// PRE: c \in Clientes()
+Nat Wolfie::AccionesTotalesDe(const Cliente& cliente) const
+{
+	infoCliente infoClienteActual = _clientes->Obtener(cliente);
+
+	return infoClienteActual.cantidadTotalDeAcciones;
+}
+
+void Wolfie::ActualizarCotizacion(const NombreTitulo& nombre, Nat cotizacion)
+{
+	infoTitulo tituloActual = _titulos->obtener(nombre);
+	if (tituloActual.cotizacion > cotizacion) {
+		tituloActual.enAlza = false;
+	} else {
+		tituloActual.enAlza = true;
+	}
+	tituloActual.cotizacion = cotizacion;
+
+	
+
+
+
+	_titulos->definir(nombre, tituloActual);
+}

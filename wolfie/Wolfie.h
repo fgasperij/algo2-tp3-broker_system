@@ -14,13 +14,20 @@ class Wolfie
 		Wolfie();
 		Wolfie(const Conj<Cliente>& clientes);
 		~Wolfie();
+		
 		Nat CantidadDeClientes() const;
+		// PRE: 0 <= i < CantidadDeClientes()
 		Cliente IesimoCliente(Nat i) const;
 
 		void AgregarTitulo(const NombreTitulo& nombre, Dinero cotizacion, Nat max_acciones);
+		
+		// PRE: nombre \in Titulos()
+		void ActualizarCotizacion(const NombreTitulo& nombre, Nat cotizacion);
+
 		Nat CantidadDeTitulos() const;
 		// PRE: 0 <= i < CantidadDeTitulos()
 		NombreTitulo IesimoTitulo(Nat i) const;
+		
 		// PRE: nombre_titulo \in Titulos()
 		Nat MaxAccionesDe(const NombreTitulo& nombre_titulo) const;
 		// PRE: nombre_titulo \in Titulos()
@@ -28,16 +35,30 @@ class Wolfie
 		// PRE: nombre_titulo \in Titulos()
 		bool EnAlza(const NombreTitulo& nombre_titulo) const;
 
+		// PRE: c \in Clientes()
+		Nat AccionesTotalesDe(const Cliente& cliente) const;
+
 		// PRE: no PrometeComprar(cliente)
 		void AgregarPromesaDeCompra(const Cliente& cliente, const NombreTitulo& titulo, Dinero limite, Nat cantidad);
 		// PRE: c \in Clientes()
 		bool PrometeComprar(const Cliente& cliente, const NombreTitulo& titulo) const;
-
+		// PRE: c \in Clientes(), PrometeComprar(c, titulo)
+		Nat CantidadAComprar(const Cliente& cliente, const NombreTitulo& titulo) const;
+		// PRE: c \in Clientes(), PrometeComprar(c, titulo)
+		Dinero ValorEsperadoParaComprar(const Cliente& cliente, const NombreTitulo& titulo) const;
 
 		// PRE: no PrometeVender(cliente) y cantidad < AccionesPorCliente(cliente, titulo)
 		void AgregarPromesaDeVenta(const Cliente& cliente, const NombreTitulo& titulo, Dinero limite, Nat cantidad);
 		// PRE: c \in Clientes()
 		bool PrometeVender(const Cliente& cliente, const NombreTitulo& titulo) const;
+		// PRE: c \in Clientes(), PrometeVender(c, titulo)
+		Nat CantidadAVender(const Cliente& cliente, const NombreTitulo& titulo) const;
+		// PRE: c \in Clientes(), PrometeVender(c, titulo)
+		Dinero ValorEsperadoParaVender(const Cliente& cliente, const NombreTitulo& titulo) const;
+
+		// PRE: nombre_titulo \in Titulos()
+		Nat AccionesDisponibles(const NombreTitulo& nombre_titulo) const;
+
 
 		
 	private:
