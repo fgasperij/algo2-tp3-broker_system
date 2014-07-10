@@ -196,7 +196,7 @@ void Wolfie::ActualizarCotizacion(const NombreTitulo& nombre, Nat cotizacion)
 	}
 	tituloActual.cotizacion = cotizacion;
 
-	// PROMESAS DE VENTA
+	// // PROMESAS DE VENTA
 	DiccionarioClientes<infoCliente>::const_Iterador itClientes = _clientes->CrearIt();
 	while (itClientes.HaySiguiente()) {
 		infoCliente clienteActual = itClientes.SiguienteSignificado();
@@ -204,7 +204,7 @@ void Wolfie::ActualizarCotizacion(const NombreTitulo& nombre, Nat cotizacion)
 			infoTituloCliente infoTituloActual = clienteActual.titulos.obtener(nombre);
 			// ejecutar venta
 			if (infoTituloActual.promesas.venta.pendiente && 
-				infoTituloActual.promesas.venta.umbral < cotizacion) {
+				infoTituloActual.promesas.venta.umbral > cotizacion) {
 				// marco la promesa como cumplida
 				infoTituloActual.promesas.venta.pendiente = false;				
 				
@@ -231,6 +231,7 @@ void Wolfie::ActualizarCotizacion(const NombreTitulo& nombre, Nat cotizacion)
 		infoCliente clienteActual = itClientes2.SiguienteSignificado();
 		clientesOrdenadosPorTotalDeAcciones[i] = clienteTotalAcciones(itClientes2.SiguienteClave(), clienteActual.cantidadTotalDeAcciones);		
 		itClientes2.Avanzar();
+		i++;
 	}
 	MergeSort(clientesOrdenadosPorTotalDeAcciones, CantidadDeClientes());
 
@@ -241,7 +242,8 @@ void Wolfie::ActualizarCotizacion(const NombreTitulo& nombre, Nat cotizacion)
 			infoTituloCliente infoTituloActual = clienteActual.titulos.obtener(nombre);
 			// ejecutar compra
 			if (infoTituloActual.promesas.compra.pendiente && 
-				infoTituloActual.promesas.compra.umbral > cotizacion) {
+				infoTituloActual.promesas.compra.umbral < cotizacion &&
+				infoTituloActual.promesas.compra.cantidad <= tituloActual.cantidadDeAccionesDisponibles) {
 				// marco la promesa como cumplida
 				infoTituloActual.promesas.compra.pendiente = false;				
 				
@@ -258,7 +260,6 @@ void Wolfie::ActualizarCotizacion(const NombreTitulo& nombre, Nat cotizacion)
 			}
 		}
 	}
-
 
 	_titulos->definir(nombre, tituloActual);
 

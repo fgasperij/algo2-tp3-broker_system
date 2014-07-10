@@ -212,7 +212,7 @@ void test_actualizar_cotizacion()
 	
 	ASSERT_EQ(true, w.PrometeComprar(cliente1, nombre1));
 	w.ActualizarCotizacion(nombre1, 30);
-	ASSERT_EQ(false, w.PrometeComprar(cliente1, nombre1));
+	ASSERT_EQ(w.PrometeComprar(cliente1, nombre1), false);
 
 	ASSERT_EQ(5, w.AccionesTotalesDe(cliente1));
 	ASSERT_EQ(95, w.AccionesDisponibles(nombre1));
