@@ -219,6 +219,41 @@ void test_actualizar_cotizacion()
 	ASSERT_EQ(5, w.AccionesPorCliente(cliente1, nombre1));
 }
 
+void test_vender_acciones_compradas()
+{
+	Conj<Cliente> clientes;
+	Nat cliente1 = 3;
+	Nat cliente2 = 5;
+	Nat cliente3 = 9;
+	clientes.Agregar(cliente1);
+	clientes.Agregar(cliente2);
+	clientes.Agregar(cliente3);
+
+	Wolfie w(clientes);
+
+	String nombre1("a");
+	String nombre3("b");
+	String nombre2("c");
+	// nombre cot maxAcciones
+	w.AgregarTitulo(nombre1, 10, 100);		
+	w.AgregarTitulo(nombre2, 20, 100);		
+	w.AgregarTitulo(nombre3, 30, 100);
+
+	// cliente titulo umbral cantidad
+	w.AgregarPromesaDeCompra(cliente1, nombre1, 20, 5);	
+	w.ActualizarCotizacion(nombre1, 30);
+
+	w.AgregarPromesaDeVenta(cliente1, nombre1, 15, 5);
+	ASSERT_EQ(w.PrometeVender(cliente1, nombre1), true);
+	w.ActualizarCotizacion(nombre1, 10);	
+	ASSERT_EQ(w.PrometeVender(cliente1, nombre1), false);
+
+	ASSERT_EQ(0, w.AccionesTotalesDe(cliente1));
+	ASSERT_EQ(100, w.AccionesDisponibles(nombre1));
+	ASSERT_EQ(0, w.AccionesPorCliente(cliente1, nombre1));
+
+}
+
 int main() 
 {
 	RUN_TEST(test_crear_wolfie_sin_perder_memoria);
@@ -230,6 +265,7 @@ int main()
 	RUN_TEST(test_agregar_promesa_de_venta);
 	RUN_TEST(test_cantidad_y_valor_esperado);
 	RUN_TEST(test_actualizar_cotizacion);
+	RUN_TEST(test_vender_acciones_compradas);
 
 	return 0;
 }
