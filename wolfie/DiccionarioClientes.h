@@ -49,10 +49,10 @@ class DiccionarioClientes
 			void Retroceder();
 
 		private:
-			aed2::Nat posicion;
-			aed2::Nat limite;
 			aed2::Nat *it_claves_;
 			T *it_significados_;
+			aed2::Nat posicion;
+			aed2::Nat limite;
 
 			const_Iterador(const DiccionarioClientes<T>* d);
 

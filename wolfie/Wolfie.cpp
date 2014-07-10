@@ -60,10 +60,11 @@ NombreTitulo Wolfie::IesimoTitulo(Nat i) const
 	DiccionarioTitulos<infoTitulo>::const_Iterador itTitulos = _titulos->CrearIt();
 
 	while(itTitulos.HaySiguiente()) {
-		if (iesimo == i) return itTitulos.SiguienteClave();
+		if (iesimo == i) break;
 		iesimo++;
 		itTitulos.Avanzar();
 	}
+	return itTitulos.SiguienteClave();
 }
 
 Nat Wolfie::MaxAccionesDe(const NombreTitulo& nombre_titulo) const

@@ -90,7 +90,7 @@ class Wolfie
 			promesaCompraYVenta promesas;
 		};
 		struct infoCliente {
-			infoCliente() : cantidadTotalDeAcciones(0), titulos(DiccionarioTitulos<infoTituloCliente>()) {};
+			infoCliente() : titulos(DiccionarioTitulos<infoTituloCliente>()), cantidadTotalDeAcciones(0) {};
 			
 			infoCliente(const infoCliente &other) {
 				titulos = other.titulos;
@@ -105,7 +105,7 @@ class Wolfie
 				cotizacion(0), enAlza(true) {};
 
 			infoTitulo(Nat maxAcciones, Nat cotizacion) : cantidadMaximaDeAcciones(maxAcciones), 
-				cotizacion(cotizacion), cantidadDeAccionesDisponibles(maxAcciones), enAlza(true) {};
+				cantidadDeAccionesDisponibles(maxAcciones), cotizacion(cotizacion), enAlza(true) {};
 
 			Nat cantidadMaximaDeAcciones;
 			Nat cantidadDeAccionesDisponibles;
