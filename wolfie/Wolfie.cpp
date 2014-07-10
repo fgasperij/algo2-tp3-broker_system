@@ -55,7 +55,7 @@ Nat Wolfie::CantidadDeTitulos() const
 // PRE: 0 <= i < CantidadDeTitulos()
 NombreTitulo Wolfie::IesimoTitulo(Nat i) const
 {
-	int iesimo = 1;
+	Nat iesimo = 1;
 	String nombreIesimo;
 	DiccionarioTitulos<infoTitulo>::const_Iterador itTitulos = _titulos->CrearIt();
 
