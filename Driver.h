@@ -68,7 +68,7 @@ class Driver
 		Dinero ValorEsperadoParaVender(const Cliente& cliente, const NombreTitulo& titulo) const;
 
 	private:
-		Wolfie _wolfie;
+		Wolfie *_wolfie;
 	
 
 }; // class Driver
