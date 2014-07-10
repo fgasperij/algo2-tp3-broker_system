@@ -159,7 +159,7 @@ void test_agregar_promesa_de_venta()
 	ASSERT_EQ(false, w.PrometeVender(5, nombre1));
 }
 
-void tests_cantidad_y_valor_esperado()
+void test_cantidad_y_valor_esperado()
 {
 	Conj<Cliente> clientes;
 	clientes.Agregar(3);
@@ -186,6 +186,22 @@ void tests_cantidad_y_valor_esperado()
 	ASSERT_EQ(45, w.CantidadAVender(5, nombre3));
 }
 
+// void test_merge_sort()
+// {
+// 	Wolfie::clienteTotalAcciones A[5];
+// 	A[0] = Wolfie::clienteTotalAcciones(4, 9);
+// 	A[1] = Wolfie::clienteTotalAcciones(3, 8);
+// 	A[2] = Wolfie::clienteTotalAcciones(2, 7);
+// 	A[3] = Wolfie::clienteTotalAcciones(44, 79);
+// 	A[4] = Wolfie::clienteTotalAcciones(45, 39);
+
+// 	Wolfie::MergeSort(A, 5);
+// 	std::cout << std::endl;
+// 	for(unsigned i = 0; i < 5; ++i) {
+// 		std::cout << "A[" << i << "]: " << A[i].cantidadTotalDeAcciones << std::endl;
+// 	}
+// }
+
 int main() 
 {
 	RUN_TEST(test_crear_wolfie_sin_perder_memoria);
@@ -195,7 +211,8 @@ int main()
 	RUN_TEST(test_max_acciones_de_cotizacion_en_alza);
 	RUN_TEST(test_agregar_promesa_de_compra);
 	RUN_TEST(test_agregar_promesa_de_venta);
-	RUN_TEST(tests_cantidad_y_valor_esperado);
+	RUN_TEST(test_cantidad_y_valor_esperado);
+	// RUN_TEST(test_merge_sort);
 
 	return 0;
 }

@@ -58,10 +58,14 @@ class Wolfie
 
 		// PRE: nombre_titulo \in Titulos()
 		Nat AccionesDisponibles(const NombreTitulo& nombre_titulo) const;
-
-
 		
 	private:
+		struct clienteTotalAcciones {
+			clienteTotalAcciones() : cliente(0), cantidadTotalDeAcciones(0) {};
+			clienteTotalAcciones(Cliente c, Nat cantidad) : cliente(c), cantidadTotalDeAcciones(cantidad) {};
+			Cliente cliente;
+			Nat cantidadTotalDeAcciones;
+		};
 		struct promesa {
 			promesa() : pendiente(false), umbral(0), cantidad(0) {};
 
@@ -109,6 +113,11 @@ class Wolfie
 		Nat _cantidadDeClientes;
 		DiccionarioClientes<infoCliente> *_clientes;
 		DiccionarioTitulos<infoTitulo> *_titulos;
+
+		void MergeSort(clienteTotalAcciones *A, Nat tamanioA);
+		void Merge(clienteTotalAcciones *A, Nat tamanioA, 
+			const clienteTotalAcciones *B, Nat tamanioB, 
+			const clienteTotalAcciones *C, Nat tamanioC);
 };
 
 #endif // WOLFIE_H_

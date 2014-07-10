@@ -197,9 +197,112 @@ void Wolfie::ActualizarCotizacion(const NombreTitulo& nombre, Nat cotizacion)
 	}
 	tituloActual.cotizacion = cotizacion;
 
-	
+	// PROMESAS DE VENTA
+	DiccionarioClientes<infoCliente>::const_Iterador itClientes = _clientes->CrearIt();
+	while (itClientes.HaySiguiente()) {
+		infoCliente clienteActual = itClientes.SiguienteSignificado();
+		if (clienteActual.titulos.definido(nombre)) {
+			infoTituloCliente infoTituloActual = clienteActual.titulos.obtener(nombre);
+			// ejecutar venta
+			if (infoTituloActual.promesas.venta.pendiente && 
+				infoTituloActual.promesas.venta.umbral < cotizacion) {
+				// marco la promesa como cumplida
+				infoTituloActual.promesas.venta.pendiente = false;				
+				
+				int cantidadDeAccionesVendidas = infoTituloActual.promesas.venta.cantidad;
+				// resto las promesas vendidas del título
+				infoTituloActual.cantidadDeAcciones -= cantidadDeAccionesVendidas;
+				// resto las promesas vendidas del total de acciones del cliente
+				clienteActual.cantidadTotalDeAcciones -= cantidadDeAccionesVendidas;
+				// sumo las promesas vendidas a la cantidad de acciones disponibles del título
+				tituloActual.cantidadDeAccionesDisponibles += cantidadDeAccionesVendidas;
 
+				clienteActual.titulos.definir(nombre, infoTituloActual);
+				_clientes->Definir(itClientes.SiguienteClave(), clienteActual);
+			}
+		}
+	}
+
+	// ARREGLO DE CLIENTE ORDENADO POR TOTAL ACCIONES
+	DiccionarioClientes<infoCliente>::const_Iterador itClientes2 = _clientes->CrearIt();
+	clienteTotalAcciones *clientesOrdenadosPorTotalDeAcciones = new clienteTotalAcciones[CantidadDeClientes()];
+	int i = 0;
+	while (itClientes2.HaySiguiente()) {
+		infoCliente clienteActual = itClientes2.SiguienteSignificado();
+		clientesOrdenadosPorTotalDeAcciones[i] = clienteTotalAcciones(itClientes2.SiguienteClave(), clienteActual.cantidadTotalDeAcciones);		
+	}
+	MergeSort(clientesOrdenadosPorTotalDeAcciones, CantidadDeClientes());
+
+	// PROMESAS DE COMPRA
+	for(unsigned i = 0; i < CantidadDeClientes(); ++i) {
+		infoCliente clienteActual = _clientes->Obtener(clientesOrdenadosPorTotalDeAcciones[i].cliente);
+		if (clienteActual.titulos.definido(nombre)) {
+			infoTituloCliente infoTituloActual = clienteActual.titulos.obtener(nombre);
+			// ejecutar compra
+			if (infoTituloActual.promesas.compra.pendiente && 
+				infoTituloActual.promesas.compra.umbral > cotizacion) {
+				// marco la promesa como cumplida
+				infoTituloActual.promesas.compra.pendiente = false;				
+				
+				int cantidadDeAccionesCompradas = infoTituloActual.promesas.compra.cantidad;
+				// resto las promesas compradas del título
+				infoTituloActual.cantidadDeAcciones += cantidadDeAccionesCompradas;
+				// resto las promesas compradas del total de acciones del cliente
+				clienteActual.cantidadTotalDeAcciones += cantidadDeAccionesCompradas;
+				// resto las promesas compradas a la cantidad de acciones disponibles del título
+				tituloActual.cantidadDeAccionesDisponibles -= cantidadDeAccionesCompradas;
+
+				clienteActual.titulos.definir(nombre, infoTituloActual);
+				_clientes->Definir(clientesOrdenadosPorTotalDeAcciones[i].cliente, clienteActual);
+			}
+		}
+	}
 
 
 	_titulos->definir(nombre, tituloActual);
+
+	delete [] clientesOrdenadosPorTotalDeAcciones;
+}
+
+void Wolfie::MergeSort(clienteTotalAcciones *A, Nat tamanioA)
+{
+	if (tamanioA > 1) {
+		Nat m = tamanioA/2;
+		
+		clienteTotalAcciones *B = new clienteTotalAcciones[m];
+		for(unsigned i = 0; i < m; ++i) {
+			B[i] = A[i];
+		}
+		clienteTotalAcciones *C = new clienteTotalAcciones[tamanioA-m];
+		for(unsigned i = m; i < tamanioA; ++i) {
+			C[i-m] = A[i];
+		}
+
+		MergeSort(B, m);
+		MergeSort(C, tamanioA-m);
+
+		Merge(A, tamanioA, B, m, C, tamanioA-m);
+
+		delete [] B;
+		delete [] C;
+	} 
+}
+
+void Wolfie::Merge(clienteTotalAcciones *A, Nat tamanioA, 
+	const clienteTotalAcciones *B, Nat tamanioB, 
+	const clienteTotalAcciones *C, Nat tamanioC)
+{
+	Nat iB = 0;
+	Nat iC = 0;
+
+	for(unsigned i = 0; i < tamanioA; ++i) {
+		if (iB < tamanioB && (iC >= tamanioC || 
+			B[iB].cantidadTotalDeAcciones < C[iC].cantidadTotalDeAcciones)) {
+			A[i] = B[iB];
+			iB++;
+		} else {
+			A[i] = C[iC];
+			iC++;
+		}
+	}
 }
