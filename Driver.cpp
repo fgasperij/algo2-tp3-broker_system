@@ -19,7 +19,7 @@ void Driver::AgregarTitulo(const NombreTitulo& nombre, Dinero cotizacion, Nat ma
 
 void Driver::ActualizarCotizacion(const NombreTitulo& nombre, Nat cotizacion)
 {
-	_wolfie->ActualizarCotizacion(nombre, cotizacion)
+	_wolfie->ActualizarCotizacion(nombre, cotizacion);
 }
 
 void Driver::AgregarPromesaDeCompra(const Cliente& cliente, const NombreTitulo& titulo, Dinero limite, Nat cantidad)
