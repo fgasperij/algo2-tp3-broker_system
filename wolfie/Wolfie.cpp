@@ -220,6 +220,7 @@ void Wolfie::ActualizarCotizacion(const NombreTitulo& nombre, Nat cotizacion)
 				_clientes->Definir(itClientes.SiguienteClave(), clienteActual);
 			}
 		}
+		itClientes.Avanzar();
 	}
 
 	// ARREGLO DE CLIENTE ORDENADO POR TOTAL ACCIONES
@@ -229,6 +230,7 @@ void Wolfie::ActualizarCotizacion(const NombreTitulo& nombre, Nat cotizacion)
 	while (itClientes2.HaySiguiente()) {
 		infoCliente clienteActual = itClientes2.SiguienteSignificado();
 		clientesOrdenadosPorTotalDeAcciones[i] = clienteTotalAcciones(itClientes2.SiguienteClave(), clienteActual.cantidadTotalDeAcciones);		
+		itClientes2.Avanzar();
 	}
 	MergeSort(clientesOrdenadosPorTotalDeAcciones, CantidadDeClientes());
 
@@ -316,5 +318,8 @@ Nat Wolfie::AccionesDisponibles(const NombreTitulo& nombre_titulo) const
 Nat Wolfie::AccionesPorCliente(const Cliente& cliente, const NombreTitulo& nombre_titulo) const
 {
 	infoCliente clienteActual = _clientes->Obtener(cliente);
-	return clienteActual.titulos.obtener(nombre_titulo).cantidadDeAcciones;
+	if (clienteActual.titulos.definido(nombre_titulo)) 
+		return clienteActual.titulos.obtener(nombre_titulo).cantidadDeAcciones;
+
+	return 0;
 }

@@ -186,21 +186,38 @@ void test_cantidad_y_valor_esperado()
 	ASSERT_EQ(45, w.CantidadAVender(5, nombre3));
 }
 
-// void test_merge_sort()
-// {
-// 	Wolfie::clienteTotalAcciones A[5];
-// 	A[0] = Wolfie::clienteTotalAcciones(4, 9);
-// 	A[1] = Wolfie::clienteTotalAcciones(3, 8);
-// 	A[2] = Wolfie::clienteTotalAcciones(2, 7);
-// 	A[3] = Wolfie::clienteTotalAcciones(44, 79);
-// 	A[4] = Wolfie::clienteTotalAcciones(45, 39);
+void test_actualizar_cotizacion()
+{
+	Conj<Cliente> clientes;
+	Nat cliente1 = 3;
+	Nat cliente2 = 5;
+	Nat cliente3 = 9;
+	clientes.Agregar(cliente1);
+	clientes.Agregar(cliente2);
+	clientes.Agregar(cliente3);
 
-// 	Wolfie::MergeSort(A, 5);
-// 	std::cout << std::endl;
-// 	for(unsigned i = 0; i < 5; ++i) {
-// 		std::cout << "A[" << i << "]: " << A[i].cantidadTotalDeAcciones << std::endl;
-// 	}
-// }
+	Wolfie w(clientes);
+
+	String nombre1("a");
+	String nombre3("b");
+	String nombre2("c");
+	// nombre cot maxAcciones
+	w.AgregarTitulo(nombre1, 10, 100);		
+	w.AgregarTitulo(nombre2, 20, 100);		
+	w.AgregarTitulo(nombre3, 30, 100);
+
+	// cliente titulo umbral cantidad
+	ASSERT_EQ(false, w.PrometeComprar(cliente1, nombre1));
+	w.AgregarPromesaDeCompra(cliente1, nombre1, 20, 5);	
+	
+	ASSERT_EQ(true, w.PrometeComprar(cliente1, nombre1));
+	w.ActualizarCotizacion(nombre1, 30);
+	ASSERT_EQ(false, w.PrometeComprar(cliente1, nombre1));
+
+	ASSERT_EQ(5, w.AccionesTotalesDe(cliente1));
+	ASSERT_EQ(95, w.AccionesDisponibles(nombre1));
+	ASSERT_EQ(5, w.AccionesPorCliente(cliente1, nombre1));
+}
 
 int main() 
 {
@@ -212,7 +229,7 @@ int main()
 	RUN_TEST(test_agregar_promesa_de_compra);
 	RUN_TEST(test_agregar_promesa_de_venta);
 	RUN_TEST(test_cantidad_y_valor_esperado);
-	// RUN_TEST(test_merge_sort);
+	RUN_TEST(test_actualizar_cotizacion);
 
 	return 0;
 }
