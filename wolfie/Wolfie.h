@@ -9,7 +9,8 @@
 using namespace aed2;
 
 class Wolfie 
-{
+{	
+	
 	public:
 		Wolfie();
 		Wolfie(const Conj<Cliente>& clientes);
@@ -62,7 +63,19 @@ class Wolfie
 		// PRE: nombre_titulo \in Titulos()
 		Nat AccionesDisponibles(const NombreTitulo& nombre_titulo) const;
 		
-	private:
+		
+			struct promesaTitulo {
+				promesaTitulo() : nombre_titulo(""), tipo(""), umbral(0), cantidad(0) {};
+				promesaTitulo(String nt, String tipo, Nat umbral, Nat cantidad) : nombre_titulo(nt), tipo(tipo), umbral(umbral), cantidad(cantidad) {};
+				
+				String nombre_titulo;
+				String tipo;
+				Nat umbral;
+				Nat cantidad;
+			};
+						
+		Lista<promesaTitulo>::const_Iterador PromesasDe(const Cliente& cliente);
+	private:		
 		struct clienteTotalAcciones {
 			clienteTotalAcciones() : cliente(0), cantidadTotalDeAcciones(0) {};
 			clienteTotalAcciones(Cliente c, Nat cantidad) : cliente(c), cantidadTotalDeAcciones(cantidad) {};
@@ -116,6 +129,9 @@ class Wolfie
 		Nat _cantidadDeClientes;
 		DiccionarioClientes<infoCliente> *_clientes;
 		DiccionarioTitulos<infoTitulo> *_titulos;
+		bool _actualizadoListaPromesasDe;
+		Cliente _clienteListaPromesasDe;
+		Lista<promesaTitulo> _listaPromesasDe;
 
 		void MergeSort(clienteTotalAcciones *A, Nat tamanioA);
 		void Merge(clienteTotalAcciones *A, Nat tamanioA, 

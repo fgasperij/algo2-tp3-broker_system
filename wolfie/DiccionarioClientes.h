@@ -18,8 +18,7 @@ class DiccionarioClientes
 		~DiccionarioClientes();
 
 		// @pre no se pueden definir más claves que el cardinalClientes inicial
-		void Definir(const Nat clientes, const T& infoCliente);
-		bool Definido(const Nat cliente) const;
+		void Definir(const Nat clientes, const T& infoCliente);		
 		// @pre el cliente está definido
 		const T& Obtener(const Nat cliente) const;
 		Cliente Iesimo(Nat i) const;		
@@ -79,6 +78,7 @@ class DiccionarioClientes
 		};
 		// @pre el cliente está definido
 		resultadoBusqueda BuscarCliente(const Nat cliente) const;
+		bool Definido(const Nat cliente) const;
 		
 		Nat *_clientes;
 		T *_infoClientes;
@@ -89,8 +89,7 @@ class DiccionarioClientes
 
 template <typename T>
 DiccionarioClientes<T>::DiccionarioClientes(Nat cardinalCliente)
-{
-	// cout << "Called: DiccionarioClientes(int)" << endl;
+{	
 	_cantidad = 0;
 	_capacidad = cardinalCliente;
 	_clientes = new Nat[cardinalCliente];
@@ -99,8 +98,7 @@ DiccionarioClientes<T>::DiccionarioClientes(Nat cardinalCliente)
 
 template <typename T>
 DiccionarioClientes<T>::~DiccionarioClientes() 
-{
-	// cout << "Called: ~DiccionarioClientes" << endl;
+{	
 	delete [] _clientes;
 	delete [] _infoClientes;
 }
@@ -188,7 +186,7 @@ typename DiccionarioClientes<T>::resultadoBusqueda DiccionarioClientes<T>::Busca
 template <typename T>
 Cliente DiccionarioClientes<T>::Iesimo(Nat i) const
 {
-	return _clientes[(i-1)];
+	return _clientes[(i)];
 }
 
 // Crear Iteradores!

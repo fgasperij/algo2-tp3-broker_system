@@ -58,7 +58,7 @@ class Lista
   void Comienzo();
 
   /// Inserción de elementos
-  Iterador AgregarAdelante(const T& elem);
+  Iterador AgregarAdelante(const T& 	);
   Iterador AgregarAtras(const T& elem);
 
   /// Creación del Iterador

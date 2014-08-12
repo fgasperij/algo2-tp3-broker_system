@@ -1,17 +1,21 @@
-// g++ test.cpp wolfie/Wolfie.cpp Driver.cpp -o test
-// valgrind --leak-check=full ./test
-
 #include "Driver.h"
 #include "mini_test.h"
+#include "aed2/Lista.h"
 
-#include <string>
 #include <iostream>
+
+// macros para iterar sobre indices
+#define forn(i, n) for(unsigned int i=0; (i)<(n); i++)
+#define forsn(i, s, n) for(unsigned int i=(s); (i)<(n); i++)
+
+// macro para iterar collecciones con nuestra interfaz de iterador
+#define FORALL(it, c) for(typeof((c).CrearIt()) it = (c).CrearIt(); it.HaySiguiente(); it.Avanzar())
 
 using namespace aed2;
 
-/** 
- * Imprime un elemento a un string, en vez de a una pantalla, 
- * a través del operador << 
+/**
+ * Imprime un elemento a un string, en vez de a una pantalla,
+ * a través del operador <<
  */
 template <typename T>
 std::string to_str(const T& t)
@@ -22,6 +26,7 @@ std::string to_str(const T& t)
 	return ss.str();
 }
 
+
 /**
  * Esta función se puede utilizar para comparar dos colecciones
  * iterables que representen conjuntos, es decir, que no tengan 
@@ -31,7 +36,7 @@ template<typename T, typename S>
 bool Comparar(const T& t, const S& s)
 {
   typename T::const_Iterador it1 = t.CrearIt();
-  typename T::const_Iterador it2 = s.CrearIt();
+  typename S::const_Iterador it2 = s.CrearIt();
 
 	// me fijo si tienen el mismo tamanho
 
@@ -51,293 +56,777 @@ bool Comparar(const T& t, const S& s)
 		return false;
 
 	it1 = t.CrearIt();
-  it2 = s.CrearIt();
+	it2 = s.CrearIt();
 
 	// me fijo que tengan los mismos elementos
 
-  while( it1.HaySiguiente() )
-  {
-    bool esta = false;
+	while( it1.HaySiguiente() )
+	{
+		bool esta = false;
+		it2 = s.CrearIt();
 
-    while( it2.HaySiguiente() ) {
-      if ( it1.Siguiente() == it2.Siguiente() ) {
-        esta = true;
-				break;
-      }
-      it2.Avanzar();
-    }
+		while( it2.HaySiguiente() ) {
+		  if ( it1.Siguiente() == it2.Siguiente() ) {
+			esta = true;
+			break;
+		  }
+		  it2.Avanzar();
+		}
 
-    if ( !esta ) {
+		if ( !esta ) {
 			return false;
 		}
-		
+			
 		it1.Avanzar();
-  }
+	}
   
   return true;
 }
 
+void asegurarDatosTitulo(Driver& wolfie, NombreTitulo nt, int cot, int maxAcc, bool alza, int disp )
+{
+	 ASSERT_EQ(wolfie.CotizacionDe(nt),cot);
+	 ASSERT_EQ(wolfie.MaxAccionesDe(nt),maxAcc);
+	 ASSERT_EQ(wolfie.EnAlza(nt),alza);
+	 ASSERT_EQ(wolfie.AccionesDisponibles(nt),disp);
+}
+
 // ---------------------------------------------------------------------
 
-void test_crear_wolfie_sin_perder_memoria() 
+void test_wolfie_vacio()
 {
 	Conj<Cliente> clientes;
-	clientes.Agregar(3);
-	clientes.Agregar(5);
+	clientes.Agregar(1);
 
-	Driver w(clientes);
+	Driver wolfie(clientes);
 
-	ASSERT_EQ(5, w.IesimoCliente(2));
-	ASSERT_EQ(3, w.IesimoCliente(1));
-
-	ASSERT_EQ(2, w.CantidadDeClientes());
+	ASSERT_EQ(wolfie.CantidadDeClientes(), 1);
+	ASSERT_EQ(wolfie.CantidadDeTitulos(), 0);
 }
 
-void test_agregar_titulos()
+void test_compra()
 {
 	Conj<Cliente> clientes;
+	clientes.Agregar(1);
+	clientes.Agregar(2);
 	clientes.Agregar(3);
-	clientes.Agregar(5);
 
-	Driver w(clientes);
+	Driver wolfie(clientes);
 
-	String nombre("Lola");
-	w.AgregarTitulo(nombre, 12, 10);	
+	// Titulo(nombre, cotizacion, maxAcciones)
+	wolfie.AgregarTitulo("t4", 30, 10);
+	wolfie.AgregarTitulo("t1", 10, 20);
+	wolfie.AgregarTitulo("t3", 70, 30);
+
+	wolfie.AgregarPromesaDeCompra(2, "t1", 40, 5);
+
+	// asegurar que ningun cliente tenga acciones
+	forn(iC, wolfie.CantidadDeClientes()) {
+		forn(iT, wolfie.CantidadDeTitulos()) {	
+			ASSERT_EQ( wolfie.AccionesPorCliente(wolfie.IesimoCliente(iC), wolfie.IesimoTitulo(iT)), 0 );
+		}
+	}
+
+	wolfie.ActualizarCotizacion("t1", 50);
+
+	// asegurar que unicamente 2 tenga acciones en t1
+	forn(iT, wolfie.CantidadDeTitulos()) {
+		ASSERT_EQ( wolfie.AccionesPorCliente(1, wolfie.IesimoTitulo(iT)), 0 );
+	}
+	forn(iT, wolfie.CantidadDeTitulos()) {
+		ASSERT_EQ( wolfie.AccionesPorCliente(3, wolfie.IesimoTitulo(iT)), 0 );
+	}
+	ASSERT_EQ( wolfie.AccionesPorCliente(2, "t4"), 0 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(2, "t1"), 5 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(2, "t3"), 0 );
 }
 
-void test_cantidad_de_titulos()
+void test_venta()
 {
 	Conj<Cliente> clientes;
+	clientes.Agregar(1);
+	clientes.Agregar(2);
 	clientes.Agregar(3);
-	clientes.Agregar(5);
 
-	Driver w(clientes);
+	Driver wolfie(clientes);
 
-	String nombre1("Lola1");
-	String nombre2("Lola2");
-	w.AgregarTitulo(nombre1, 12, 10);		
-	w.AgregarTitulo(nombre2, 12, 10);		
+	wolfie.AgregarTitulo("t4", 30, 10);
+	wolfie.AgregarTitulo("t1", 10, 20);
+	wolfie.AgregarTitulo("t3", 70, 30);
 
-	ASSERT_EQ(2, w.CantidadDeTitulos());
+	wolfie.AgregarPromesaDeCompra(1, "t1", 40, 5);
+	wolfie.AgregarPromesaDeCompra(2, "t1", 40, 3);
+	wolfie.AgregarPromesaDeCompra(3, "t1", 50, 2);
+	
+	wolfie.ActualizarCotizacion("t1", 50);
 
-	String nombre3("Lola3");
-	w.AgregarTitulo(nombre3, 12, 10);		
+	wolfie.AgregarPromesaDeVenta(1, "t1", 40, 3);
+	
+	wolfie.ActualizarCotizacion("t1", 30);
 
-	ASSERT_EQ(3, w.CantidadDeTitulos());
+	ASSERT_EQ( wolfie.AccionesPorCliente(1, "t4"), 0 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(1, "t1"), 2 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(1, "t3"), 0 );
+
+	ASSERT_EQ( wolfie.AccionesPorCliente(2, "t4"), 0 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(2, "t1"), 3 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(2, "t3"), 0 );
+
+	ASSERT_EQ( wolfie.AccionesPorCliente(3, "t4"), 0 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(3, "t1"), 0 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(3, "t3"), 0 );
+}
+
+void test_venta_dispara_compra()
+{
+	Conj<Cliente> clientes;
+	clientes.Agregar(1);
+	clientes.Agregar(2);
+
+	Driver wolfie(clientes);
+
+	// Titulo(nombre, cotizacion, maxAcciones)
+	wolfie.AgregarTitulo("t1", 30, 10);
+
+	// Cliente 1 quiere comprar todas las acciones de t1
+	// luego se hace efectiva la compra
+	wolfie.AgregarPromesaDeCompra(1, "t1", 40, 10);
+	wolfie.ActualizarCotizacion("t1", 50);
+
+	ASSERT_EQ( wolfie.AccionesPorCliente(1, "t1"), 10 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(2, "t1"), 0 );
+	ASSERT_EQ( wolfie.AccionesDisponibles("t1"), 0 );
+
+	// cliente 2 pide comprar, puede por el precio,
+	// pero no hay acciones disponibles
+	wolfie.AgregarPromesaDeCompra(2, "t1", 5, 1);
+
+	wolfie.ActualizarCotizacion("t1", 15);
+
+	ASSERT_EQ( wolfie.AccionesDisponibles("t1"), 0 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(1, "t1"), 10 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(2, "t1"), 0 );
+
+	// cliente 1 pide vender un par, y a continuacion se dispara la venta
+	// cliente 2 deberia comprar automaticamente
+	wolfie.AgregarPromesaDeVenta(1, "t1", 20, 6);
+	wolfie.ActualizarCotizacion("t1", 10);
+
+	ASSERT_EQ( wolfie.AccionesDisponibles("t1"), 5 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(1, "t1"), 4 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(2, "t1"), 1 );
 }
 
 void test_iesimo_titulo()
 {
 	Conj<Cliente> clientes;
-	clientes.Agregar(3);
-	clientes.Agregar(5);
+	clientes.Agregar(1);
+	Driver wolfie(clientes);
 
-	Driver w(clientes);
+	Conj<NombreTitulo> titulos;
+	titulos.Agregar("t1");
+	titulos.Agregar("t2");
+	titulos.Agregar("t3");
+	titulos.Agregar("t4");
 
-	String nombre1("Lola1");
-	String nombre2("Lola2");
-	String nombre3("Lola3");
-	w.AgregarTitulo(nombre1, 12, 10);		
-	w.AgregarTitulo(nombre2, 12, 10);		
-	w.AgregarTitulo(nombre3, 12, 10);		
+	FORALL(it, titulos) {
+		wolfie.AgregarTitulo(it.Siguiente(), 1, 1);
+	}
 
-	ASSERT_EQ("Lola1", w.IesimoTitulo(1));
-	ASSERT_EQ("Lola2", w.IesimoTitulo(2));
-	ASSERT_EQ("Lola3", w.IesimoTitulo(3));
-}
+	{
+		ASSERT_EQ(wolfie.CantidadDeTitulos(), 4);
 
-void test_max_acciones_de_cotizacion_en_alza()
-{
-	Conj<Cliente> clientes;
-	clientes.Agregar(3);
-	clientes.Agregar(5);
+		Lista<NombreTitulo> titulos_i;
+		forn(i, wolfie.CantidadDeTitulos()) {
+			titulos_i.AgregarAtras( wolfie.IesimoTitulo(i) );
+		}
 
-	Driver w(clientes);
+		ASSERT( Comparar(titulos, titulos_i) );
+	}
 
-	String nombre1("Lola1");
-	String nombre2("Lola2");
-	String nombre3("Lola3");
-	// nombre cot maxAcciones
-	w.AgregarTitulo(nombre1, 32, 2);		
-	w.AgregarTitulo(nombre2, 145, 14);		
-	w.AgregarTitulo(nombre3, 175, 90);
-
-	ASSERT_EQ(2, w.MaxAccionesDe(nombre1));
-	ASSERT_EQ(14, w.MaxAccionesDe(nombre2));
-	ASSERT_EQ(90, w.MaxAccionesDe(nombre3));
-
-	ASSERT_EQ(32, w.CotizacionDe(nombre1));
-	ASSERT_EQ(145, w.CotizacionDe(nombre2));
-	ASSERT_EQ(175, w.CotizacionDe(nombre3));
-
-	ASSERT_EQ(true, w.EnAlza(nombre1));
-	ASSERT_EQ(true, w.EnAlza(nombre2));
-	ASSERT_EQ(true, w.EnAlza(nombre3));
-}
-
-void test_agregar_promesa_de_compra()
-{
-	Conj<Cliente> clientes;
-	clientes.Agregar(3);
-	clientes.Agregar(5);
-
-	Driver w(clientes);
-
-	String nombre1("Lola1");
-	String nombre2("Lola2");
-	String nombre3("Lola3");
-	// nombre cot maxAcciones
-	w.AgregarTitulo(nombre1, 32, 2);		
-	w.AgregarTitulo(nombre2, 145, 14);		
-	w.AgregarTitulo(nombre3, 175, 90);
-
-	w.AgregarPromesaDeCompra(3, nombre1, 10, 20);
-	ASSERT_EQ(true, w.PrometeComprar(3, nombre1));
-	ASSERT_EQ(false, w.PrometeComprar(3, nombre2));
-	ASSERT_EQ(false, w.PrometeComprar(5, nombre1));
-	ASSERT_EQ(false, w.PrometeComprar(5, nombre2));
-
-	w.AgregarPromesaDeCompra(5, nombre3, 10, 20);
-	ASSERT_EQ(true, w.PrometeComprar(5, nombre3));
-	ASSERT_EQ(false, w.PrometeComprar(5, nombre2));
-	ASSERT_EQ(false, w.PrometeComprar(5, nombre1));
-}
-
-void test_agregar_promesa_de_venta()
-{
-	Conj<Cliente> clientes;
-	clientes.Agregar(3);
-	clientes.Agregar(5);
-
-	Driver w(clientes);
-
-	String nombre1("Lola1");
-	String nombre2("Lola2");
-	String nombre3("Lola3");
-	// nombre cot maxAcciones
-	w.AgregarTitulo(nombre1, 32, 2);		
-	w.AgregarTitulo(nombre2, 145, 14);		
-	w.AgregarTitulo(nombre3, 175, 90);
-
-	w.AgregarPromesaDeVenta(3, nombre1, 10, 20);
-	ASSERT_EQ(true, w.PrometeVender(3, nombre1));
-	ASSERT_EQ(false, w.PrometeVender(3, nombre2));
-	ASSERT_EQ(false, w.PrometeVender(5, nombre1));
-	ASSERT_EQ(false, w.PrometeVender(5, nombre2));
-
-	w.AgregarPromesaDeVenta(5, nombre3, 10, 20);
-	ASSERT_EQ(true, w.PrometeVender(5, nombre3));
-	ASSERT_EQ(false, w.PrometeVender(5, nombre2));
-	ASSERT_EQ(false, w.PrometeVender(5, nombre1));
-}
-
-void test_cantidad_y_valor_esperado()
-{
-	Conj<Cliente> clientes;
-	clientes.Agregar(3);
-	clientes.Agregar(5);
-	clientes.Agregar(9);
-
-	Driver w(clientes);
-
-	String nombre1("YPF");
-	String nombre2("93hkj97}}++");
-	String nombre3("kjhkj383737{'¿");
-	// nombre cot maxAcciones
-	w.AgregarTitulo(nombre1, 32, 2);		
-	w.AgregarTitulo(nombre2, 145, 14);		
-	w.AgregarTitulo(nombre3, 175, 90);
-
-	// cliente titulo umbral cantidad
-	w.AgregarPromesaDeVenta(3, nombre1, 10, 20);
-	ASSERT_EQ(10, w.ValorEsperadoParaVender(3, nombre1));
-	ASSERT_EQ(20, w.CantidadAVender(3, nombre1));
-
-	w.AgregarPromesaDeVenta(5, nombre3, 34, 45);
-	ASSERT_EQ(34, w.ValorEsperadoParaVender(5, nombre3));
-	ASSERT_EQ(45, w.CantidadAVender(5, nombre3));
-}
-
-void test_actualizar_cotizacion()
-{
-	Conj<Cliente> clientes;
-	Nat cliente1 = 3;
-	Nat cliente2 = 5;
-	Nat cliente3 = 9;
-	clientes.Agregar(cliente1);
-	clientes.Agregar(cliente2);
-	clientes.Agregar(cliente3);
-
-	Driver w(clientes);
-
-	String nombre1("a");
-	String nombre3("b");
-	String nombre2("c");
-	// nombre cot maxAcciones
-	w.AgregarTitulo(nombre1, 10, 100);		
-	w.AgregarTitulo(nombre2, 20, 100);		
-	w.AgregarTitulo(nombre3, 30, 100);
-
-	// cliente titulo umbral cantidad
-	ASSERT_EQ(false, w.PrometeComprar(cliente1, nombre1));
-	w.AgregarPromesaDeCompra(cliente1, nombre1, 20, 5);	
+	Conj<NombreTitulo> titulos_nuevos;
+	titulos_nuevos.Agregar("t5");
+	titulos_nuevos.Agregar("t6");
 	
-	ASSERT_EQ(true, w.PrometeComprar(cliente1, nombre1));
-	w.ActualizarCotizacion(nombre1, 30);
-	ASSERT_EQ(w.PrometeComprar(cliente1, nombre1), false);
+	titulos.Agregar("t5");
+	titulos.Agregar("t6");
 
-	ASSERT_EQ(5, w.AccionesTotalesDe(cliente1));
-	ASSERT_EQ(95, w.AccionesDisponibles(nombre1));
-	ASSERT_EQ(5, w.AccionesPorCliente(cliente1, nombre1));
+	FORALL(it, titulos_nuevos) {
+		wolfie.AgregarTitulo(it.Siguiente(), 1, 1);
+	}
+
+	{
+		ASSERT_EQ(wolfie.CantidadDeTitulos(), 6);
+		
+		Lista<NombreTitulo> titulos_i;
+		forn(i, wolfie.CantidadDeTitulos()) {
+			titulos_i.AgregarAtras( wolfie.IesimoTitulo(i) );
+		}
+	
+		ASSERT( Comparar(titulos, titulos_i) );
+	}
 }
 
-void test_vender_acciones_compradas()
+void test_iesimo_cliente()
 {
 	Conj<Cliente> clientes;
-	Nat cliente1 = 3;
-	Nat cliente2 = 5;
-	Nat cliente3 = 9;
-	clientes.Agregar(cliente1);
-	clientes.Agregar(cliente2);
-	clientes.Agregar(cliente3);
+	clientes.Agregar(1);
+	clientes.Agregar(2);
+	clientes.Agregar(3);
 
-	Driver w(clientes);
+	Driver wolfie(clientes);
 
-	String nombre1("a");
-	String nombre3("b");
-	String nombre2("c");
-	// nombre cot maxAcciones
-	w.AgregarTitulo(nombre1, 10, 100);		
-	w.AgregarTitulo(nombre2, 20, 100);		
-	w.AgregarTitulo(nombre3, 30, 100);
+	ASSERT_EQ(wolfie.CantidadDeClientes(), 3);
 
-	// cliente titulo umbral cantidad
-	w.AgregarPromesaDeCompra(cliente1, nombre1, 20, 5);	
-	w.ActualizarCotizacion(nombre1, 30);
+	Lista<Cliente> clientes_i;
+	forn(i, wolfie.CantidadDeClientes()) {
+		clientes_i.AgregarAtras( wolfie.IesimoCliente(i) );
+	}
 
-	w.AgregarPromesaDeVenta(cliente1, nombre1, 15, 5);
-	ASSERT_EQ(w.PrometeVender(cliente1, nombre1), true);
-	w.ActualizarCotizacion(nombre1, 10);	
-	ASSERT_EQ(w.PrometeVender(cliente1, nombre1), false);
-
-	ASSERT_EQ(0, w.AccionesTotalesDe(cliente1));
-	ASSERT_EQ(100, w.AccionesDisponibles(nombre1));
-	ASSERT_EQ(0, w.AccionesPorCliente(cliente1, nombre1));
-
+	ASSERT( Comparar(clientes, clientes_i) );
 }
 
-int main() 
+void test_promesas_no_se_ejecutan_porque_no_son_ejecutables()
 {
-	RUN_TEST(test_crear_wolfie_sin_perder_memoria);
-	RUN_TEST(test_agregar_titulos);
-	RUN_TEST(test_cantidad_de_titulos);
+	Conj<Cliente> clientes;
+	clientes.Agregar(1);
+	clientes.Agregar(2);
+
+	Driver wolfie(clientes);
+
+	//Agrego titulo
+	wolfie.AgregarTitulo("t1", 30, 10);
+
+	//Agrego promesas de compras NO ejecutables (una por que no hay tantas
+	//acciones y otra porque no alcanzó la cotización que pedía)
+	wolfie.AgregarPromesaDeCompra(1, "t1", 40, 20);
+	wolfie.AgregarPromesaDeCompra(2, "t1", 50, 10);
+
+	//Actualizo cotización
+	wolfie.ActualizarCotizacion("t1", 50);
+
+	//Nadie compra nada!
+	ASSERT_EQ( wolfie.AccionesPorCliente(1, "t1"), 0 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(2, "t1"), 0 );
+}
+
+void test_valores_de_los_titulos_se_modifican_correctamente()
+{
+	Conj<Cliente> clientes;
+	clientes.Agregar(1);
+	clientes.Agregar(2);
+
+	Driver wolfie(clientes);
+
+	//Agrego titulo
+	wolfie.AgregarTitulo("t1", 10, 100);
+	wolfie.AgregarTitulo("t2", 20, 200);
+	wolfie.AgregarTitulo("t3", 30, 300);
+	wolfie.AgregarTitulo("t4", 40, 400);
+
+	//Chequeo:
+	asegurarDatosTitulo(wolfie,"t1",10,100,true,100);
+	asegurarDatosTitulo(wolfie,"t2",20,200,true,200);
+	asegurarDatosTitulo(wolfie,"t3",30,300,true,300);
+	asegurarDatosTitulo(wolfie,"t4",40,400,true,400);
+
+	//Actualizo cotizacion para que cambien alza y cotizaciones
+	wolfie.ActualizarCotizacion("t1",15);
+	wolfie.ActualizarCotizacion("t2",15);
+	wolfie.ActualizarCotizacion("t3",30);
+	wolfie.ActualizarCotizacion("t4",80);
+
+	//Chequeo:
+	asegurarDatosTitulo(wolfie,"t1",15,100,true,100);
+	asegurarDatosTitulo(wolfie,"t2",15,200,false,200);
+	asegurarDatosTitulo(wolfie,"t3",30,300,false,300);
+	asegurarDatosTitulo(wolfie,"t4",80,400,true,400);
+
+	//Hacemos unas compras así se modifican los disponibles
+	wolfie.AgregarPromesaDeCompra(1,"t1",1,50);
+	wolfie.AgregarPromesaDeCompra(2,"t2",1,100);
+	wolfie.AgregarPromesaDeCompra(1,"t3",1,150);
+	wolfie.AgregarPromesaDeCompra(2,"t4",1,200);
+
+	//Actualizo cotizaciones
+	wolfie.ActualizarCotizacion("t1",15);
+	wolfie.ActualizarCotizacion("t2",15);
+	wolfie.ActualizarCotizacion("t3",30);
+	wolfie.ActualizarCotizacion("t4",80);
+
+	//Chequeo:
+	asegurarDatosTitulo(wolfie,"t1",15,100,false,50);
+	asegurarDatosTitulo(wolfie,"t2",15,200,false,100);
+	asegurarDatosTitulo(wolfie,"t3",30,300,false,150);
+	asegurarDatosTitulo(wolfie,"t4",80,400,false,200);
+}
+
+void test_no_se_venden_mas_acciones_que_el_limite_del_titulo()
+{
+	Conj<Cliente> clientes;
+	clientes.Agregar(1);
+	clientes.Agregar(2);
+	clientes.Agregar(3);
+
+	Driver wolfie(clientes);
+
+	//Agrego títulos
+	wolfie.AgregarTitulo("t1", 30, 10);
+	wolfie.AgregarTitulo("t2", 10, 20);
+
+	//Agrego promesas
+	wolfie.AgregarPromesaDeCompra(1,"t1",40,10);
+	wolfie.AgregarPromesaDeCompra(2,"t2",40,20);
+
+	//Hago que suban hasta 50 para comprar todo lo que haya
+	wolfie.ActualizarCotizacion("t1",50);
+	wolfie.ActualizarCotizacion("t2",50);
+
+	//Corrobamos que hayan comprado
+	ASSERT_EQ( wolfie.AccionesPorCliente(1, "t1"), 10 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(1, "t2"), 0 );
+
+	ASSERT_EQ( wolfie.AccionesPorCliente(2, "t1"), 0 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(2, "t2"), 20 );
+
+	ASSERT_EQ( wolfie.AccionesPorCliente(3, "t1"), 0 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(3, "t2"), 0 );
+
+	//Nuevas promesas de compra
+	wolfie.AgregarPromesaDeCompra(1,"t1",70,5);
+	wolfie.AgregarPromesaDeCompra(2,"t2",70,5);
+
+	//Actualizo la cotización para que llegue a ese valor
+	wolfie.ActualizarCotizacion("t1",80);
+	wolfie.ActualizarCotizacion("t2",80);
+
+	//Corroboro que siga igual que antes ya que no hay títulos
+	//para que los clientes compren.
+	ASSERT_EQ( wolfie.AccionesPorCliente(1, "t1"), 10 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(1, "t2"), 0 );
+
+	ASSERT_EQ( wolfie.AccionesPorCliente(2, "t1"), 0 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(2, "t2"), 20 );
+
+	ASSERT_EQ( wolfie.AccionesPorCliente(3, "t1"), 0 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(3, "t2"), 0 );
+}
+
+void test_cliente_con_mas_acciones_compra_primero()
+{
+	Conj<Cliente> clientes;
+	clientes.Agregar(1);
+	clientes.Agregar(2);
+	clientes.Agregar(3);
+
+	Driver wolfie(clientes);
+
+	//Agrego títulos
+	wolfie.AgregarTitulo("t1", 10, 250);
+	wolfie.AgregarTitulo("t2", 10, 200);
+
+	//Chequeo valores de titulos
+	asegurarDatosTitulo(wolfie,"t1",10,250,true,250);
+	asegurarDatosTitulo(wolfie,"t2",10,200,true,200);
+
+	//Agrego promesas de Compra
+	wolfie.AgregarPromesaDeCompra(1,"t1",15,10);
+	wolfie.AgregarPromesaDeCompra(1,"t2",15,25);
+	wolfie.AgregarPromesaDeCompra(2,"t1",15,7);
+	wolfie.AgregarPromesaDeCompra(2,"t2",15,15);
+
+	//Actualizo el valor de los títulos
+	wolfie.ActualizarCotizacion("t1",16);
+	wolfie.ActualizarCotizacion("t2",16);
+
+	//Chequeo valores de titulos
+	asegurarDatosTitulo(wolfie,"t1",16,250,true,233);
+	asegurarDatosTitulo(wolfie,"t2",16,200,true,160);
+
+	//Chequeo que se hayan comprado bien
+	ASSERT_EQ( wolfie.AccionesPorCliente(1, "t1"), 10 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(1, "t2"), 25 );
+
+	ASSERT_EQ( wolfie.AccionesPorCliente(2, "t1"), 7 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(2, "t2"), 15 );
+
+	ASSERT_EQ( wolfie.AccionesPorCliente(3, "t1"), 0 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(3, "t2"), 0 );
+
+	//Chequeo que la cant de promesas totales sea la correcta
+	ASSERT_EQ( wolfie.AccionesTotalesDe(1), 35 );
+	ASSERT_EQ( wolfie.AccionesTotalesDe(2), 22 );
+	ASSERT_EQ( wolfie.AccionesTotalesDe(3), 0 );
+
+	//Nuevas promesas todos quieren comprar cuando suba de 20.
+	wolfie.AgregarPromesaDeCompra(1,"t1",20,200);
+	wolfie.AgregarPromesaDeCompra(2,"t1",20,200);
+	wolfie.AgregarPromesaDeCompra(3,"t1",20,200);
+
+	wolfie.ActualizarCotizacion	("t1",22);
+
+	// Chequeo que haya comprado sólo el cliente 1 dado que es el que
+	//más acciones totales tiene.
+	ASSERT_EQ( wolfie.AccionesPorCliente(1, "t1"), 210 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(1, "t2"), 25 );
+
+	ASSERT_EQ( wolfie.AccionesPorCliente(2, "t1"), 7 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(2, "t2"), 15 );
+
+	ASSERT_EQ( wolfie.AccionesPorCliente(3, "t1"), 0 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(3, "t2"), 0 );
+}
+
+void test_primero_todas_las_de_venta()
+{
+	Conj<Cliente> clientes;
+	clientes.Agregar(1);
+	clientes.Agregar(2);
+	clientes.Agregar(3);
+
+	Driver wolfie(clientes);
+
+	//Agrego títulos
+	wolfie.AgregarTitulo("t1", 10, 250);
+	wolfie.AgregarTitulo("t2", 10, 200);
+
+	//Cliente 1 y 2 primero van a comprar para después venderlas
+	wolfie.AgregarPromesaDeCompra(1,"t1",20,120);
+	wolfie.AgregarPromesaDeCompra(2,"t1",20,100);
+	wolfie.AgregarPromesaDeCompra(1,"t2",20,12);
+	wolfie.AgregarPromesaDeCompra(2,"t2",20,18);
+
+	//Actualizo cotizaciones para que se ejecuten las promesas
+	wolfie.ActualizarCotizacion("t1",22);
+	wolfie.ActualizarCotizacion("t2",22);
+
+	//Chequeo que cliente 1 y 2 hayan comprado, y 3 tenga todo en 0
+	ASSERT_EQ( wolfie.AccionesPorCliente(1, "t1"), 120 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(1, "t2"), 12 );
+
+	ASSERT_EQ( wolfie.AccionesPorCliente(2, "t1"), 100 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(2, "t2"), 18 );
+
+	ASSERT_EQ( wolfie.AccionesPorCliente(3, "t1"), 0 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(3, "t2"), 0 );
+
+	//Clientes 1 y 2 quieren vender todo lo que tienen, 3 quiere comprar
+	//pero necesita que primero se vendan para comprar la cantidad que él quiere.
+	wolfie.AgregarPromesaDeVenta(1,"t1",20,120);
+	wolfie.AgregarPromesaDeVenta(2,"t1",20,100);
+	wolfie.AgregarPromesaDeVenta(1,"t2",20,12);
+	wolfie.AgregarPromesaDeVenta(2,"t2",20,18);
+	wolfie.AgregarPromesaDeCompra(3,"t1",15,220);
+	wolfie.AgregarPromesaDeCompra(3,"t2",15,190);
+
+	//La promesa de compra no debería ejecutarse autoḿaticamente porque no hay
+	//suficientes títulos.
+	ASSERT_EQ( wolfie.AccionesPorCliente(1, "t1"), 120 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(1, "t2"), 12 );
+
+	ASSERT_EQ( wolfie.AccionesPorCliente(2, "t1"), 100 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(2, "t2"), 18 );
+
+	ASSERT_EQ( wolfie.AccionesPorCliente(3, "t1"), 0 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(3, "t2"), 0 );
+
+	//Actulizo cotización para que se ejecuten las ventas y las compras.
+	wolfie.ActualizarCotizacion("t1",18);
+	wolfie.ActualizarCotizacion("t2",18);
+
+	//Chequeo acciones disponibles de cada titulo
+	ASSERT_EQ(wolfie.AccionesDisponibles("t1"), 30  );
+	ASSERT_EQ(wolfie.AccionesDisponibles("t2"), 10  );
+
+	//Chequeo que se haya comprado y vendido como se debe.
+	ASSERT_EQ( wolfie.AccionesPorCliente(1, "t1"), 0 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(1, "t2"), 0 );
+
+	ASSERT_EQ( wolfie.AccionesPorCliente(2, "t1"), 0 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(2, "t2"), 0 );
+
+	ASSERT_EQ( wolfie.AccionesPorCliente(3, "t1"), 220 );
+	ASSERT_EQ( wolfie.AccionesPorCliente(3, "t2"), 190 );
+}
+
+void test_promete_comprar_y_promete_vender()
+{
+	Conj<Cliente> clientes;
+	clientes.Agregar(1);
+	clientes.Agregar(2);
+	clientes.Agregar(3);
+
+	Driver wolfie(clientes);
+
+	//Agrego títulos
+	wolfie.AgregarTitulo("t1", 10, 500);
+	wolfie.AgregarTitulo("t2", 10, 500);
+
+	//Nadie prometio comprar ni vender
+	ASSERT(!wolfie.PrometeComprar(1,"t1"));
+	ASSERT(!wolfie.PrometeComprar(2,"t1"));
+	ASSERT(!wolfie.PrometeComprar(3,"t1"));
+	ASSERT(!wolfie.PrometeComprar(1,"t2"));
+	ASSERT(!wolfie.PrometeComprar(2,"t2"));
+	ASSERT(!wolfie.PrometeComprar(3,"t2"));
+
+	ASSERT(!wolfie.PrometeVender(1,"t1"));
+	ASSERT(!wolfie.PrometeVender(2,"t1"));
+	ASSERT(!wolfie.PrometeVender(3,"t1"));
+	ASSERT(!wolfie.PrometeVender(1,"t2"));
+	ASSERT(!wolfie.PrometeVender(2,"t2"));
+	ASSERT(!wolfie.PrometeVender(3,"t2"));
+
+	//Hago promesas de compra
+	wolfie.AgregarPromesaDeCompra(1,"t1", 20, 100);
+	wolfie.AgregarPromesaDeCompra(2,"t1", 20, 100);
+	wolfie.AgregarPromesaDeCompra(3,"t1", 20, 100);
+	wolfie.AgregarPromesaDeCompra(1,"t2", 20, 100);
+	wolfie.AgregarPromesaDeCompra(2,"t2", 20, 100);
+	wolfie.AgregarPromesaDeCompra(3,"t2", 20, 100);
+
+	//Todos prometieron comprar nadie vender
+	ASSERT(wolfie.PrometeComprar(1,"t1"));
+	ASSERT(wolfie.PrometeComprar(2,"t1"));
+	ASSERT(wolfie.PrometeComprar(3,"t1"));
+	ASSERT(wolfie.PrometeComprar(1,"t2"));
+	ASSERT(wolfie.PrometeComprar(2,"t2"));
+	ASSERT(wolfie.PrometeComprar(3,"t2"));
+
+	ASSERT(!wolfie.PrometeVender(1,"t1"));
+	ASSERT(!wolfie.PrometeVender(2,"t1"));
+	ASSERT(!wolfie.PrometeVender(3,"t1"));
+	ASSERT(!wolfie.PrometeVender(1,"t2"));
+	ASSERT(!wolfie.PrometeVender(2,"t2"));
+	ASSERT(!wolfie.PrometeVender(3,"t2"));
+
+	//Actualizo para que se ejecuten las compras
+	wolfie.ActualizarCotizacion("t1",25);
+	wolfie.ActualizarCotizacion("t2",25);
+
+	//Nadie promete  comprar ni vender
+	ASSERT(!wolfie.PrometeComprar(1,"t1"));
+	ASSERT(!wolfie.PrometeComprar(2,"t1"));
+	ASSERT(!wolfie.PrometeComprar(3,"t1"));
+	ASSERT(!wolfie.PrometeComprar(1,"t2"));
+	ASSERT(!wolfie.PrometeComprar(2,"t2"));
+	ASSERT(!wolfie.PrometeComprar(3,"t2"));
+
+	ASSERT(!wolfie.PrometeVender(1,"t1"));
+	ASSERT(!wolfie.PrometeVender(2,"t1"));
+	ASSERT(!wolfie.PrometeVender(3,"t1"));
+	ASSERT(!wolfie.PrometeVender(1,"t2"));
+	ASSERT(!wolfie.PrometeVender(2,"t2"));
+	ASSERT(!wolfie.PrometeVender(3,"t2"));
+
+	//Hago Promesas de Venta
+	wolfie.AgregarPromesaDeVenta(1,"t1", 30, 100);
+	wolfie.AgregarPromesaDeVenta(2,"t1", 30, 100);
+	wolfie.AgregarPromesaDeVenta(3,"t1", 30, 100);
+	wolfie.AgregarPromesaDeVenta(1,"t2", 30, 100);
+	wolfie.AgregarPromesaDeVenta(2,"t2", 30, 100);
+	wolfie.AgregarPromesaDeVenta(3,"t2", 30, 100);
+
+	ASSERT(!wolfie.PrometeComprar(1,"t1"));
+	ASSERT(!wolfie.PrometeComprar(2,"t1"));
+	ASSERT(!wolfie.PrometeComprar(3,"t1"));
+	ASSERT(!wolfie.PrometeComprar(1,"t2"));
+	ASSERT(!wolfie.PrometeComprar(2,"t2"));
+	ASSERT(!wolfie.PrometeComprar(3,"t2"));
+
+	ASSERT(wolfie.PrometeVender(1,"t1"));
+	ASSERT(wolfie.PrometeVender(2,"t1"));
+	ASSERT(wolfie.PrometeVender(3,"t1"));
+	ASSERT(wolfie.PrometeVender(1,"t2"));
+	ASSERT(wolfie.PrometeVender(2,"t2"));
+	ASSERT(wolfie.PrometeVender(3,"t2"));
+}
+
+void test_cantidad_a_comprar_y_cantidad_a_vender()
+{
+	Conj<Cliente> clientes;
+	clientes.Agregar(1);
+	clientes.Agregar(2);
+	clientes.Agregar(3);
+
+	Driver wolfie(clientes);
+
+	//Agrego títulos
+	wolfie.AgregarTitulo("t1", 10, 500);
+	wolfie.AgregarTitulo("t2", 10, 500);
+
+	//Agrego promesas de venta y compra
+	wolfie.AgregarPromesaDeCompra(1,"t1", 20, 10);
+	wolfie.AgregarPromesaDeCompra(2,"t1", 25, 20);
+	wolfie.AgregarPromesaDeCompra(3,"t1", 40, 30);
+
+	wolfie.AgregarPromesaDeCompra(1,"t2", 40, 110);
+	wolfie.AgregarPromesaDeCompra(2,"t2", 50, 120);
+	wolfie.AgregarPromesaDeCompra(3,"t2", 80, 130);
+
+	//Corroboro cantidades
+	ASSERT_EQ(wolfie.CantidadAComprar(1,"t1"),10 );
+	ASSERT_EQ(wolfie.CantidadAComprar(2,"t1"),20 );
+	ASSERT_EQ(wolfie.CantidadAComprar(3,"t1"),30 );
+
+	ASSERT_EQ(wolfie.CantidadAComprar(1,"t2"),110 );
+	ASSERT_EQ(wolfie.CantidadAComprar(2,"t2"),120 );
+	ASSERT_EQ(wolfie.CantidadAComprar(3,"t2"),130 );
+
+	//Actualizo cot para que se ejecuten las ventas
+	wolfie.ActualizarCotizacion("t1",100);
+	wolfie.ActualizarCotizacion("t2",100);
+
+	// Agrego promesas de venta
+	wolfie.AgregarPromesaDeVenta(1,"t1", 20, 10);
+	wolfie.AgregarPromesaDeVenta(2,"t1", 25, 20);
+	wolfie.AgregarPromesaDeVenta(3,"t1", 40, 30);
+
+	wolfie.AgregarPromesaDeVenta(1,"t2", 40, 110);
+	wolfie.AgregarPromesaDeVenta(2,"t2", 50, 120);
+	wolfie.AgregarPromesaDeVenta(3,"t2", 80, 130);
+
+	// // Corroboro cantidades
+	ASSERT_EQ(wolfie.CantidadAVender(1,"t1"),10 );
+	ASSERT_EQ(wolfie.CantidadAVender(2,"t1"),20 );
+	ASSERT_EQ(wolfie.CantidadAVender(3,"t1"),30 );
+
+	ASSERT_EQ(wolfie.CantidadAVender(1,"t2"),110 );
+	ASSERT_EQ(wolfie.CantidadAVender(2,"t2"),120 );
+	ASSERT_EQ(wolfie.CantidadAVender(3,"t2"),130 );
+}
+
+void test_valorEsperadoVender_y_valorEsperadoComprar()
+{
+	Conj<Cliente> clientes;
+	clientes.Agregar(1);
+	clientes.Agregar(2);
+	clientes.Agregar(3);
+
+	Driver wolfie(clientes);
+
+	//Agrego títulos
+	wolfie.AgregarTitulo("t1", 10, 500);
+	wolfie.AgregarTitulo("t2", 10, 500);
+
+	//Agrego promesas de venta y compra
+	wolfie.AgregarPromesaDeCompra(1,"t1", 20, 10);
+	wolfie.AgregarPromesaDeCompra(2,"t1", 25, 20);
+	wolfie.AgregarPromesaDeCompra(3,"t1", 40, 30);
+
+	wolfie.AgregarPromesaDeCompra(1,"t2", 40, 110);
+	wolfie.AgregarPromesaDeCompra(2,"t2", 50, 120);
+	wolfie.AgregarPromesaDeCompra(3,"t2", 80, 130);
+
+	//Corroboro cantidades
+	ASSERT_EQ(wolfie.ValorEsperadoParaComprar(1,"t1"),20 );
+	ASSERT_EQ(wolfie.ValorEsperadoParaComprar(2,"t1"),25 );
+	ASSERT_EQ(wolfie.ValorEsperadoParaComprar(3,"t1"),40 );
+
+	ASSERT_EQ(wolfie.ValorEsperadoParaComprar(1,"t2"),40 );
+	ASSERT_EQ(wolfie.ValorEsperadoParaComprar(2,"t2"),50 );
+	ASSERT_EQ(wolfie.ValorEsperadoParaComprar(3,"t2"),80 );
+
+	wolfie.ActualizarCotizacion("t1",90);
+	wolfie.ActualizarCotizacion("t2",90);
+
+	// Agrego promesas de venta
+	wolfie.AgregarPromesaDeVenta(1,"t1", 20, 10);
+	wolfie.AgregarPromesaDeVenta(2,"t1", 25, 20);
+	wolfie.AgregarPromesaDeVenta(3,"t1", 40, 30);
+
+	wolfie.AgregarPromesaDeVenta(1,"t2", 40, 110);
+	wolfie.AgregarPromesaDeVenta(2,"t2", 50, 120);
+	wolfie.AgregarPromesaDeVenta(3,"t2", 80, 130);
+
+	// Corroboro cantidades
+	ASSERT_EQ(wolfie.ValorEsperadoParaVender(1,"t1"),20 );
+	ASSERT_EQ(wolfie.ValorEsperadoParaVender(2,"t1"),25 );
+	ASSERT_EQ(wolfie.ValorEsperadoParaVender(3,"t1"),40 );
+
+	ASSERT_EQ(wolfie.ValorEsperadoParaVender(1,"t2"),40 );
+	ASSERT_EQ(wolfie.ValorEsperadoParaVender(2,"t2"),50 );
+	ASSERT_EQ(wolfie.ValorEsperadoParaVender(3,"t2"),80 );
+}
+
+void test_cache()
+{
+	Conj<Cliente> clientes;
+	clientes.Agregar(1);
+	clientes.Agregar(2);
+
+	Driver wolfie(clientes);
+
+	//Agrego títulos
+	wolfie.AgregarTitulo("t1", 10, 500);
+	wolfie.AgregarTitulo("t2", 20, 500);
+	wolfie.AgregarTitulo("t3", 30, 500);
+	wolfie.AgregarTitulo("t4", 40, 500);
+
+	//Agrego promesas de venta y compra
+	wolfie.AgregarPromesaDeCompra(1,"t1", 20, 100);
+	wolfie.AgregarPromesaDeCompra(1,"t2", 20, 100);
+	wolfie.AgregarPromesaDeCompra(1,"t3", 20, 10);
+	wolfie.AgregarPromesaDeCompra(1,"t4", 20, 10);
+
+	wolfie.AgregarPromesaDeCompra(2,"t1", 20, 100);
+	wolfie.AgregarPromesaDeCompra(2,"t2", 20, 100);
+	wolfie.AgregarPromesaDeCompra(2,"t3", 20, 10);
+	wolfie.AgregarPromesaDeCompra(2,"t4", 20, 10);
+
+	//Actualizo para que se ejecute la compra
+	wolfie.ActualizarCotizacion("t1",30);
+	wolfie.ActualizarCotizacion("t2",30);
+
+	//Hago promesas de venta
+	wolfie.AgregarPromesaDeVenta(1,"t1", 10, 100);
+	wolfie.AgregarPromesaDeVenta(1,"t2", 10, 100);
+	wolfie.AgregarPromesaDeVenta(2,"t1", 10, 100);
+	wolfie.AgregarPromesaDeVenta(2,"t2", 10, 100);
+
+	forn(iC, wolfie.CantidadDeClientes()) {
+		forn(iT, wolfie.CantidadDeTitulos()) {
+
+			NombreTitulo titulo = wolfie.IesimoTitulo(iT);
+			Cliente cliente = wolfie.IesimoCliente(iC);
+
+			if (wolfie.PrometeComprar(cliente, titulo)) {
+				Nat cantidad = wolfie.CantidadAComprar(cliente, titulo);
+				Dinero limite = wolfie.ValorEsperadoParaComprar(cliente, titulo);
+
+				ASSERT(cantidad == wolfie.CantidadAComprar(cliente, titulo))
+				ASSERT(limite == wolfie.ValorEsperadoParaComprar(cliente, titulo))
+				ASSERT( wolfie.PrometeComprar(cliente, titulo) );
+			}
+			else if (wolfie.PrometeVender(cliente, titulo)) {
+				Nat cant = wolfie.CantidadAVender(cliente, titulo);
+				Dinero din = wolfie.ValorEsperadoParaVender(cliente, titulo);
+
+				ASSERT(cant == wolfie.CantidadAVender(cliente, titulo));
+				ASSERT(din == wolfie.ValorEsperadoParaVender(cliente, titulo));
+				ASSERT( wolfie.PrometeVender(cliente, titulo) );
+			}
+		}
+	}
+}
+
+int main(int argc, char **argv)
+{
+	RUN_TEST(test_wolfie_vacio);
+	RUN_TEST(test_valores_de_los_titulos_se_modifican_correctamente);
+	RUN_TEST(test_compra);
+	RUN_TEST(test_venta);
+	RUN_TEST(test_venta_dispara_compra);
 	RUN_TEST(test_iesimo_titulo);
-	RUN_TEST(test_max_acciones_de_cotizacion_en_alza);
-	RUN_TEST(test_agregar_promesa_de_compra);
-	RUN_TEST(test_agregar_promesa_de_venta);
-	RUN_TEST(test_cantidad_y_valor_esperado);
-	RUN_TEST(test_actualizar_cotizacion);
-	RUN_TEST(test_vender_acciones_compradas);
+	RUN_TEST(test_iesimo_cliente);
+	RUN_TEST(test_promesas_no_se_ejecutan_porque_no_son_ejecutables);
+	RUN_TEST(test_no_se_venden_mas_acciones_que_el_limite_del_titulo);
+	RUN_TEST(test_cliente_con_mas_acciones_compra_primero);
+	RUN_TEST(test_primero_todas_las_de_venta);
+	RUN_TEST(test_promete_comprar_y_promete_vender);
+	RUN_TEST(test_cantidad_a_comprar_y_cantidad_a_vender);
+	RUN_TEST(test_valorEsperadoVender_y_valorEsperadoComprar);
+	RUN_TEST(test_cache);
 
 	return 0;
 }

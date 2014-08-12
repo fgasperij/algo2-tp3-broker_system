@@ -370,16 +370,7 @@ const T& DiccionarioTitulos<T>::obtener(const aed2::String &clave)
         	assert(index >= 0);
         #endif
         if (NodoActual->hijos[index] != NULL)
-            NodoActual = NodoActual->hijos[index];
-        /*else
-          // Aca hay que ver bien el control de errores
-          // Que pasa si no lo encuentra?
-            return this->raiz->significado;
-
-        if (i == clave.size() - 1 && !NodoActual->end)
-          // No lo encuentra
-            return this->raiz->significado;
-         */
+            NodoActual = NodoActual->hijos[index];        
     }
     // Lo encuentra, entonces devuelvo el significado
     return NodoActual->significado;

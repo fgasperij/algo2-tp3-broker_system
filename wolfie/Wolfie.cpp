@@ -12,6 +12,9 @@ Wolfie::~Wolfie()
 
 Wolfie::Wolfie(const Conj<Cliente>& clientes)
 {
+	_actualizadoListaPromesasDe = false;
+	
+	
 	_cantidadDeClientes = clientes.Cardinal();
 	_clientes = new DiccionarioClientes<infoCliente>(_cantidadDeClientes);	
 	Conj<Cliente>::const_Iterador itClientes = clientes.CrearIt();
@@ -29,7 +32,7 @@ Nat Wolfie::CantidadDeClientes() const
 }
 
 Cliente Wolfie::IesimoCliente(Nat i) const
-{
+{	
 	return _clientes->Iesimo(i);
 }
 
@@ -54,8 +57,8 @@ Nat Wolfie::CantidadDeTitulos() const
 
 // PRE: 0 <= i < CantidadDeTitulos()
 NombreTitulo Wolfie::IesimoTitulo(Nat i) const
-{
-	Nat iesimo = 1;
+{	
+	Nat iesimo = 0;
 	String nombreIesimo;
 	DiccionarioTitulos<infoTitulo>::const_Iterador itTitulos = _titulos->CrearIt();
 
@@ -190,7 +193,7 @@ Nat Wolfie::AccionesTotalesDe(const Cliente& cliente) const
 void Wolfie::ActualizarCotizacion(const NombreTitulo& nombre, Nat cotizacion)
 {
 	infoTitulo tituloActual = _titulos->obtener(nombre);
-	if (tituloActual.cotizacion > cotizacion) {
+	if (tituloActual.cotizacion >= cotizacion) {
 		tituloActual.enAlza = false;
 	} else {
 		tituloActual.enAlza = true;
@@ -300,7 +303,7 @@ void Wolfie::Merge(clienteTotalAcciones *A, Nat tamanioA,
 
 	for(unsigned i = 0; i < tamanioA; ++i) {
 		if (iB < tamanioB && (iC >= tamanioC || 
-			B[iB].cantidadTotalDeAcciones < C[iC].cantidadTotalDeAcciones)) {
+			B[iB].cantidadTotalDeAcciones > C[iC].cantidadTotalDeAcciones)) {
 			A[i] = B[iB];
 			iB++;
 		} else {
@@ -318,10 +321,45 @@ Nat Wolfie::AccionesDisponibles(const NombreTitulo& nombre_titulo) const
 
 // PRE: c \in Clientes(), nombre_titulo \in Titulos()
 Nat Wolfie::AccionesPorCliente(const Cliente& cliente, const NombreTitulo& nombre_titulo) const
-{
+{	
 	infoCliente clienteActual = _clientes->Obtener(cliente);
 	if (clienteActual.titulos.definido(nombre_titulo)) 
 		return clienteActual.titulos.obtener(nombre_titulo).cantidadDeAcciones;
 
 	return 0;
+}
+
+Lista<Wolfie::promesaTitulo>::const_Iterador Wolfie::PromesasDe(const Cliente& cliente)
+{
+	if (_actualizadoListaPromesasDe && _clienteListaPromesasDe == cliente)
+		return _listaPromesasDe.CrearIt();
+		
+	infoCliente clienteActual = _clientes->Obtener(cliente);
+	DiccionarioTitulos<infoTituloCliente>::const_Iterador itTitulos = clienteActual.titulos.CrearIt();
+	Lista<promesaTitulo> listaPromesasDe;
+	String tipoCompra("compra");
+	String tipoVenta("venta");
+	while(itTitulos.HaySiguiente()) {
+		infoTituloCliente tituloActual = itTitulos.SiguienteSignificado();
+		if (tituloActual.promesas.venta.pendiente) {			
+			listaPromesasDe.AgregarAdelante(promesaTitulo(itTitulos.SiguienteClave(), 
+				tipoVenta, 
+				tituloActual.promesas.venta.umbral,
+				tituloActual.promesas.venta.cantidad));
+		}
+		if (tituloActual.promesas.compra.pendiente) {			
+			listaPromesasDe.AgregarAdelante(promesaTitulo(itTitulos.SiguienteClave(), 
+				tipoCompra, 
+				tituloActual.promesas.compra.umbral,
+				tituloActual.promesas.compra.cantidad));
+		}
+		
+		itTitulos.Avanzar();
+	}
+	
+	_actualizadoListaPromesasDe = true;
+	_clienteListaPromesasDe = cliente;
+	_listaPromesasDe = listaPromesasDe;
+	
+	return _listaPromesasDe.CrearIt();
 }
